@@ -1,1 +1,1 @@
-
+//localStorage操作をまとめる
