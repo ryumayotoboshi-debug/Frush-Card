@@ -1,1 +1,1 @@
-//localStorage操作をまとめる
+//localStorage操作をまとめる、データ保存の窓口
