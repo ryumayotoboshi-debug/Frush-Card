@@ -1,5 +1,23 @@
 import { getCards, updateCard } from "../data/storage.js";
 import { renderQuestion, renderTags, renderTagButtons } from "../ui/render.js";
+import { updateFolderStudyTime } from "./folders.js";
+
+export function answerQuestion(card, isCorrect) {
+  const data = load();
+
+  const target = data.words.find(w => w.id === card.id);
+
+  if (target) {
+    if (isCorrect) target.stats.correct++;
+    else target.stats.wrong++;
+
+    save(data);
+
+    // 🔥 フォルダ更新
+    updateFolderStudyTime(target.folderId);
+  }
+}
+
 
 let current;
 let currentFolderId;
