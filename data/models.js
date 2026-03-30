@@ -1,25 +1,22 @@
-//データの型定義、データの“設計図”をまとめる
 "use strict";
 
-export function createCard({
-  id,
-  word,
-  meaning,
-  description = "",
-  tags = [],
-  folderId = null,
-  correct = 0,
-  wrong = 0
-}) {
+export function createFolder(name, parentId = null) {
   return {
-    id,
+    id: crypto.randomUUID(),
+    name,
+    parentId
+  };
+}
+
+export function createWord(word, meaning, description, folderId) {
+  return {
+    id: crypto.randomUUID(),
     word,
     meaning,
     description,
-    tags,
     folderId,
-    correct,
-    wrong,
-    createdAt: Date.now()
+    tags: [],
+    correct: 0,
+    wrong: 0
   };
 }
