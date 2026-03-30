@@ -8,18 +8,18 @@ export function getFolders() {
 
 export function addFolder(name, parentId = null) {
   const data = load();
-  data.folders.push(createFolder(name, parentId));
+  const folder = createFolder(name, parentId);
+  data.folders.push(folder);
   save(data);
 }
 
 export function renameFolder(id, newName) {
   const data = load();
-  const folder = data.folders.find(f => f.id === id);
-  if (folder) folder.name = newName;
+  const f = data.folders.find(x => x.id === id);
+  if (f) f.name = newName;
   save(data);
 }
 
-// 階層構造で取得
 export function getFolderTree() {
   const folders = getFolders();
 
