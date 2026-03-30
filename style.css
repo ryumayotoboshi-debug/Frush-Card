@@ -1,19 +1,24 @@
 body {
-  font-size: 20px;
+  font-size: 18px;
   background: #0a0a0a;
   color: #0ff;
   text-align: center;
 }
 
+input {
+  display: block;
+  margin: 5px auto;
+  padding: 8px;
+  width: 80%;
+}
+
 button {
-  font-size: 20px;
-  padding: 10px 20px;
+  padding: 10px;
   margin: 10px;
 }
 
 #question {
-  font-size: 28px;
-  margin: 20px;
+  font-size: 26px;
 }
 
 #choices button {
@@ -23,11 +28,10 @@ button {
 }
 
 .tag-label {
-  display: inline-block;
-  margin: 5px;
-  padding: 5px 12px;
-  border-radius: 12px;
   background: #222;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 10px;
 }
 
 #tagButtons button.active {
