@@ -17,15 +17,32 @@ export function renderQuiz() {
     return;
   }
 
+  // 問題
   const question = document.createElement("h2");
   question.textContent = quiz.question;
   container.appendChild(question);
 
+  // 回答エリア
+  const choiceArea = document.createElement("div");
+  container.appendChild(choiceArea);
+
+  // 結果エリア
   const resultArea = document.createElement("div");
   container.appendChild(resultArea);
 
+  // タグエリア
+  const tagArea = document.createElement("div");
+  tagArea.className = "tag-area";
+  container.appendChild(tagArea);
+
+  // 操作エリア
+  const controlArea = document.createElement("div");
+  controlArea.className = "control-area";
+  container.appendChild(controlArea);
+
   let answered = false;
 
+  // 選択肢
   quiz.choices.forEach(choice => {
     const btn = document.createElement("button");
     btn.textContent = choice;
@@ -36,14 +53,16 @@ export function renderQuiz() {
 
       const isCorrect = checkAnswer(choice);
 
+      // 選択肢を消す
+      choiceArea.innerHTML = "";
+
+      // 結果表示
       resultArea.innerHTML = `
         <p>${isCorrect ? "正解！" : "不正解"}</p>
         <p>${quiz.description || ""}</p>
       `;
 
-      // タグボタン
-      const tagArea = document.createElement("div");
-
+      // タグボタン生成
       ["苦手", "要復習", "完璧"].forEach(tag => {
         const tagBtn = document.createElement("button");
         tagBtn.textContent = tag;
@@ -55,27 +74,22 @@ export function renderQuiz() {
         tagArea.appendChild(tagBtn);
       });
 
-      resultArea.appendChild(tagArea);
-
       // 次へボタン
       const nextBtn = document.createElement("button");
       nextBtn.textContent = "次へ";
 
-      nextBtn.addEventListener("click", () => {
-        renderQuiz();
-      });
-
-      resultArea.appendChild(nextBtn);
+      nextBtn.addEventListener("click", renderQuiz);
+      controlArea.appendChild(nextBtn);
     });
 
-    container.appendChild(btn);
+    choiceArea.appendChild(btn);
   });
 
+  // スキップ（常に表示）
   const skipBtn = document.createElement("button");
   skipBtn.textContent = "スキップ";
-
   skipBtn.addEventListener("click", renderQuiz);
-  container.appendChild(skipBtn);
+  controlArea.appendChild(skipBtn);
 }
 
 
