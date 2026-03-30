@@ -1,35 +1,19 @@
+import { getAllCards } from "../data/storage.js";
 import { renderQuestion, renderTags, renderTagButtons } from "../ui/render.js";
 
-let cards = [
-  {
-    word: "apple",
-    answer: "りんご",
-    choices: ["りんご", "みかん", "ぶどう", "バナナ"],
-    explanation: "果物の一種",
-    tags: []
-  },
-  {
-    word: "dog",
-    answer: "犬",
-    choices: ["猫", "犬", "鳥", "魚"],
-    explanation: "人間の友達",
-    tags: []
-  }
-];
-
-let current = null;
+let current;
 let isAnswered = false;
 
 export function startQuiz() {
-  document.getElementById("homeScreen").style.display = "none";
   document.getElementById("quizScreen").style.display = "block";
-
   nextQuestion();
 }
 
 export function nextQuestion() {
-  isAnswered = false;
+  const cards = getAllCards();
+  if (cards.length === 0) return;
 
+  isAnswered = false;
   current = cards[Math.floor(Math.random() * cards.length)];
 
   document.getElementById("result").textContent = "";
@@ -38,8 +22,8 @@ export function nextQuestion() {
   document.getElementById("skipBtn").style.display = "inline-block";
 
   renderQuestion(current, selectAnswer);
-  renderTags(current.tags);
-  renderTagButtons(current, updateTags);
+  renderTags(current.tags || []);
+  renderTagButtons(current, toggleTag);
 }
 
 export function selectAnswer(choice) {
@@ -47,24 +31,15 @@ export function selectAnswer(choice) {
 
   isAnswered = true;
 
-  const result = document.getElementById("result");
-  const explanation = document.getElementById("explanation");
+  document.getElementById("result").textContent =
+    choice === current.answer ? "正解！" : "不正解";
 
-  if (choice === current.answer) {
-    result.textContent = "正解！";
-  } else {
-    result.textContent = "不正解";
-  }
+  document.getElementById("explanation").textContent = current.explanation;
 
-  explanation.textContent = current.explanation;
-
-  // ★ 選択肢消す
   document.getElementById("choices").innerHTML = "";
 
-  // ★ スキップ消す
+  // ★ここ重要
   document.getElementById("skipBtn").style.display = "none";
-
-  // ★ 次へ表示
   document.getElementById("nextBtn").style.display = "inline-block";
 }
 
@@ -73,7 +48,7 @@ export function skipQuestion() {
   nextQuestion();
 }
 
-function updateTags(card, tag) {
+function toggleTag(card, tag) {
   if (!card.tags) card.tags = [];
 
   if (card.tags.includes(tag)) {
