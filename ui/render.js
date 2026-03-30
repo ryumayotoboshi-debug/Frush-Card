@@ -1,9 +1,19 @@
 import { startQuiz, skipQuestion, nextQuestion } from "../features/quiz.js";
 
 export function setupUI() {
-  document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
-  document.getElementById("skipBtn").addEventListener("click", skipQuestion);
-  document.getElementById("nextBtn").addEventListener("click", nextQuestion);
+  const startBtn = document.getElementById("startQuizBtn");
+  const skipBtn = document.getElementById("skipBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  // ★ nullチェック（これがないと静かに死ぬ）
+  if (!startBtn) {
+    console.error("startQuizBtnが見つかりません");
+    return;
+  }
+
+  startBtn.addEventListener("click", startQuiz);
+  skipBtn.addEventListener("click", skipQuestion);
+  nextBtn.addEventListener("click", nextQuestion);
 }
 
 export function renderQuestion(card, onSelect) {
