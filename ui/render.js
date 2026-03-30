@@ -7,8 +7,18 @@ import { getFolders, addFolder } from "./features/folders.js";
 let currentFolderId = null;
 
 export function draw() {
+  console.log("draw() 実行");
+
   const container = document.getElementById("app");
-  container.innerHTML = "";
+
+  console.log("container:", container);
+
+  if (!container) {
+    alert("appが見つかりません");
+    return;
+  }
+
+  container.innerHTML = "<h1 style='color:red'>描画テスト</h1>";
 
   const folders = getFolders(currentFolderId);
 
