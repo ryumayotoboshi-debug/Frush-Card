@@ -31,3 +31,16 @@ input {
   background-color: #222;
   color: #fff;
 }
+
+/* --- スクロール制御 --- */
+
+/* フォルダ画面：スクロール完全禁止 */
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* 単語画面：縦OK・横禁止 */
+body.word-screen {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
