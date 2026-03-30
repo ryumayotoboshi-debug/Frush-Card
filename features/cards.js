@@ -43,3 +43,16 @@ export function getWeightedRandomCard() {
 
   return cards[0];
 }
+
+export function toggleTag(cardId, tag) {
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+
+  if (card.tags.includes(tag)) {
+    card.tags = card.tags.filter(t => t !== tag);
+  } else {
+    card.tags.push(tag);
+  }
+
+  saveCards(cards);
+}
