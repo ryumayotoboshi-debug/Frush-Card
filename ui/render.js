@@ -6,10 +6,17 @@ import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 
-// タイトル制御
+// ---------------- タイトル制御 ----------------
 function setTitle(text){
   const title = document.getElementById("mainTitle");
-  if(title) title.textContent = text;
+  if(!title) return;
+
+  if(text === null){
+    title.style.display = "none";
+  }else{
+    title.style.display = "block";
+    title.textContent = text;
+  }
 }
 
 // ---------------- フォルダ画面 ----------------
@@ -21,8 +28,12 @@ export function drawFolderScreen(parentId = null) {
 
   currentFolderId = parentId;
 
-  // ★ タイトル切り替え
-  setTitle("フォルダ一覧");
+  // ★ タイトル制御
+  if(parentId === null){
+    setTitle("単語帳"); // 立ち上げ画面
+  }else{
+    setTitle("フォルダ一覧"); // サブフォルダ
+  }
 
   const folders = getFolderTree(parentId)
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
@@ -57,7 +68,7 @@ export function drawFolderScreen(parentId = null) {
     const actions = document.createElement("div");
     actions.className = "folder-actions";
 
-    // ★ サブフォルダ追加は親フォルダのみ許可
+    // ★ サブフォルダ追加はサブ階層のみ
     if(parentId !== null){
       const addSubBtn = document.createElement("button");
       addSubBtn.textContent = "+";
@@ -109,7 +120,7 @@ export function drawFolderScreen(parentId = null) {
 export function drawWordScreen(subFolderId, parentFolderId){
   document.body.className = "word-screen";
 
-  // ★ タイトル切り替え
+  // ★ タイトル
   setTitle("単語一覧");
 
   currentFolderId = subFolderId;
