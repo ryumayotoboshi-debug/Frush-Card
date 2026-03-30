@@ -1,11 +1,11 @@
 "use strict";
 
-import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../features/folders.js";
+import { getFolderTree, addFolder, renameFolder, deleteFolder, markFolderStudied } from "../features/folders.js";
 import { getWords, addWord, deleteWord, updateTags } from "../features/cards.js";
 
 let currentFolderId = null;
 
-// 全体描画
+// 描画統括
 export function draw() {
   if (!currentFolderId) renderFolderView();
   else renderWordView(currentFolderId);
@@ -18,7 +18,10 @@ function renderFolderView() {
 
   app.innerHTML = "<h2>📁 フォルダ一覧</h2>";
 
-  const folders = getFolderTree();
+  let folders = getFolderTree();
+
+  // ★ 最近勉強した順に並び替え
+  folders.sort((a,b) => (b.lastStudied || 0) - (a.lastStudied || 0));
 
   const div = document.createElement("div");
   function renderTree(nodes, depth = 0) {
@@ -87,6 +90,9 @@ function renderFolderView() {
 function renderWordView(folderId) {
   const app = document.getElementById("app");
   if (!app) return;
+
+  // フォルダを勉強済みに更新
+  markFolderStudied(folderId);
 
   const words = getWords(folderId);
 
@@ -172,6 +178,9 @@ function renderWordView(folderId) {
 function renderQuiz(folderId) {
   const words = getWords(folderId);
   if (!words.length) return alert("単語がありません");
+
+  // フォルダを勉強済みに更新
+  markFolderStudied(folderId);
 
   const app = document.getElementById("app");
   app.innerHTML = `<button id="backCard">← 単語一覧に戻る</button><h2>クイズ</h2>`;
