@@ -4,22 +4,22 @@ import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../feature
 import { getWords, addWord, deleteWord, updateWordTags } from "../features/cards.js";
 import { startQuiz } from "../features/quiz.js";
 
-let currentFolderId = null;
+let currentFolderId = null; // 現在開いているフォルダID
 
 // ---------------- フォルダ画面 ----------------
-export function drawFolderScreen() {
+export function drawFolderScreen(parentId = null) {
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
 
-  const folders = getFolderTree(currentFolderId).sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
+  currentFolderId = null; // フォルダ画面では単語画面ではない
+  const folders = getFolderTree(parentId).sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
     <div style="padding:0 10px">
       <h2>📁 フォルダ一覧</h2>
       <div id="list"></div>
-      <input id="newName" placeholder="新しいフォルダ">
-      <button id="addBtn">追加</button>
-      ${currentFolderId ? '<button id="backBtn">← 戻る</button>' : ''}
+      ${parentId === null ? '<input id="newName" placeholder="新しいフォルダ"><button id="addBtn">追加</button>' : ''}
+      ${parentId !== null ? '<button id="backBtn">← 戻る</button>' : ''}
     </div>
   `;
 
@@ -35,32 +35,42 @@ export function drawFolderScreen() {
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
     nameBtn.style.flex="1";
-    // ★ここで単語画面に遷移
-    nameBtn.onclick = ()=> drawWordScreen(f.id);
+
+    // ★親フォルダならサブフォルダ画面へ、サブフォルダなら単語画面へ
+    nameBtn.onclick = ()=>{
+      if(parentId === null){
+        drawFolderScreen(f.id); // 親フォルダの中 → サブフォルダ一覧
+      } else {
+        drawWordScreen(f.id); // サブフォルダ → 単語画面
+      }
+    };
 
     const actions = document.createElement("span");
 
-    const addSubBtn = document.createElement("button");
-    addSubBtn.textContent = "+";
-    addSubBtn.onclick = ()=>{
-      const subName = prompt("サブフォルダ名");
-      if(subName){ addFolder(subName,f.id); drawFolderScreen(); }
-    };
+    // サブフォルダ作成は親フォルダでのみ
+    if(parentId === null){
+      const addSubBtn = document.createElement("button");
+      addSubBtn.textContent = "+";
+      addSubBtn.onclick = ()=>{
+        const subName = prompt("サブフォルダ名");
+        if(subName){ addFolder(subName,f.id); drawFolderScreen(f.id); }
+      };
+      actions.appendChild(addSubBtn);
+    }
 
     const renameBtn = document.createElement("button");
     renameBtn.textContent = "✎";
     renameBtn.onclick = ()=>{
       const newName = prompt("新しい名前", f.name);
-      if(newName){ renameFolder(f.id,newName); drawFolderScreen(); }
+      if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }
     };
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑";
     deleteBtn.onclick = ()=>{
-      if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(); }
+      if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
     };
 
-    actions.appendChild(addSubBtn);
     actions.appendChild(renameBtn);
     actions.appendChild(deleteBtn);
 
@@ -69,27 +79,26 @@ export function drawFolderScreen() {
     list.appendChild(div);
   });
 
-  app.querySelector("#addBtn").onclick = ()=>{
-    const name = app.querySelector("#newName").value.trim();
-    if(!name){ alert("名前を入力してください"); return; }
-    addFolder(name,currentFolderId);
-    app.querySelector("#newName").value="";
-    drawFolderScreen();
-  };
-
-  if(currentFolderId){
-    app.querySelector("#backBtn").onclick = ()=> {
-      currentFolderId = null;
+  if(parentId === null){
+    app.querySelector("#addBtn")?.addEventListener("click",()=>{
+      const name = app.querySelector("#newName").value.trim();
+      if(!name){ alert("名前を入力してください"); return; }
+      addFolder(name,null);
+      app.querySelector("#newName").value="";
       drawFolderScreen();
-    };
+    });
+  } else {
+    app.querySelector("#backBtn")?.addEventListener("click",()=>{
+      drawFolderScreen(null); // サブフォルダから戻ると親フォルダ画面
+    });
   }
 }
 
 // ---------------- 単語画面 ----------------
-export function drawWordScreen(folderId){
-  currentFolderId = folderId;
+export function drawWordScreen(subFolderId){
+  currentFolderId = subFolderId;
   const app = document.getElementById("app");
-  const words = getWords(folderId);
+  const words = getWords(subFolderId);
 
   app.innerHTML=`
     <div style="padding:0 10px">
@@ -112,7 +121,7 @@ export function drawWordScreen(folderId){
 
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
-    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(folderId); };
+    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId); };
     div.appendChild(deleteBtn);
 
     const tagDiv=document.createElement("div");
@@ -121,7 +130,7 @@ export function drawWordScreen(folderId){
       b.textContent=tag;
       b.onclick=()=>{
         updateWordTags(w.id,tag);
-        drawWordScreen(folderId);
+        drawWordScreen(subFolderId);
       };
       tagDiv.appendChild(b);
     });
@@ -129,16 +138,16 @@ export function drawWordScreen(folderId){
     list.appendChild(div);
   });
 
-  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen();
+  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(null);
 
   app.querySelector("#addWordBtn").onclick = ()=>{
     const front = app.querySelector("#wordInput").value.trim();
     const back = app.querySelector("#answerInput").value.trim();
     const note = app.querySelector("#explanationInput").value.trim();
     if(!front||!back){ alert("単語と意味は必須"); return; }
-    addWord({front,back,note,folderId});
-    drawWordScreen(folderId);
+    addWord({front,back,note,folderId:subFolderId});
+    drawWordScreen(subFolderId);
   };
 
-  app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(folderId);
+  app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
 }
