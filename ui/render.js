@@ -2,7 +2,7 @@
 
 import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../features/folders.js";
 import { getWords, addWord, deleteWord, updateWordTags } from "../features/cards.js";
-import { startQuiz } from "../features/quiz.js";
+import { getQuizWords } from "../features/quiz.js";
 
 let currentFolderId = null; // 現在開いているフォルダID
 
@@ -11,7 +11,7 @@ export function drawFolderScreen(parentId = null) {
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
 
-  currentFolderId = null; // フォルダ画面では単語画面ではない
+  currentFolderId = null; 
   const folders = getFolderTree(parentId).sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
@@ -36,18 +36,16 @@ export function drawFolderScreen(parentId = null) {
     nameBtn.textContent = f.name;
     nameBtn.style.flex="1";
 
-    // ★親フォルダならサブフォルダ画面へ、サブフォルダなら単語画面へ
     nameBtn.onclick = ()=>{
       if(parentId === null){
-        drawFolderScreen(f.id); // 親フォルダの中 → サブフォルダ一覧
+        drawFolderScreen(f.id);
       } else {
-        drawWordScreen(f.id); // サブフォルダ → 単語画面
+        drawWordScreen(f.id);
       }
     };
 
     const actions = document.createElement("span");
 
-    // サブフォルダ作成は親フォルダでのみ
     if(parentId === null){
       const addSubBtn = document.createElement("button");
       addSubBtn.textContent = "+";
@@ -89,7 +87,7 @@ export function drawFolderScreen(parentId = null) {
     });
   } else {
     app.querySelector("#backBtn")?.addEventListener("click",()=>{
-      drawFolderScreen(null); // サブフォルダから戻ると親フォルダ画面
+      drawFolderScreen(null);
     });
   }
 }
@@ -149,5 +147,68 @@ export function drawWordScreen(subFolderId){
     drawWordScreen(subFolderId);
   };
 
-  app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
+  app.querySelector("#startQuizBtn").onclick = ()=> drawQuizScreen(subFolderId);
+}
+
+// ---------------- クイズ画面 ----------------
+function drawQuizScreen(folderId){
+  const app = document.getElementById("app");
+  const words = getQuizWords(folderId);
+  if(words.length===0){ alert("単語がありません"); return; }
+
+  let index = 0;
+  let score = 0;
+
+  function renderQuestion(){
+    app.innerHTML=`
+      <div style="padding:0 10px">
+        <h2>クイズ</h2>
+        <div id="question"></div>
+        <div id="choices"></div>
+        <div id="result"></div>
+        <button id="backBtn">← 単語画面へ戻る</button>
+      </div>
+    `;
+
+    const q = words[index];
+    app.querySelector("#question").textContent = `Q${index+1}: ${q.front}`;
+
+    const choicesDiv = app.querySelector("#choices");
+
+    // 正解とランダムな不正解を混ぜる
+    let options = [q.back];
+    while(options.length<4 && words.length>1){
+      const w = words[Math.floor(Math.random()*words.length)];
+      if(w.back!==q.back && !options.includes(w.back)) options.push(w.back);
+    }
+    // シャッフル
+    options = options.sort(()=>Math.random()-0.5);
+
+    options.forEach(opt=>{
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.style.display="block";
+      btn.style.marginBottom="6px";
+      btn.onclick = ()=>{
+        const resultDiv = app.querySelector("#result");
+        if(opt===q.back){
+          resultDiv.textContent = "✅ 正解";
+          score++;
+        } else {
+          resultDiv.textContent = `❌ 不正解 正解: ${q.back}`;
+        }
+
+        index++;
+        setTimeout(()=>{ 
+          if(index<words.length) renderQuestion(); 
+          else alert(`終了！ 正答数 ${score}/${words.length}`); 
+        }, 800);
+      };
+      choicesDiv.appendChild(btn);
+    });
+
+    app.querySelector("#backBtn").onclick = ()=> drawWordScreen(folderId);
+  }
+
+  renderQuestion();
 }
