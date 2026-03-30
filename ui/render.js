@@ -6,6 +6,12 @@ import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 
+// タイトル制御
+function setTitle(text){
+  const title = document.getElementById("mainTitle");
+  if(title) title.textContent = text;
+}
+
 // ---------------- フォルダ画面 ----------------
 export function drawFolderScreen(parentId = null) {
   document.body.className = "no-scroll";
@@ -15,12 +21,14 @@ export function drawFolderScreen(parentId = null) {
 
   currentFolderId = parentId;
 
+  // ★ タイトル切り替え
+  setTitle("フォルダ一覧");
+
   const folders = getFolderTree(parentId)
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
     <div style="padding:0 10px">
-      <h2>📁 フォルダ一覧</h2>
       <div id="list"></div>
       <input id="newName" placeholder="新しいフォルダ">
       <button id="addBtn">追加</button>
@@ -32,36 +40,38 @@ export function drawFolderScreen(parentId = null) {
 
   folders.forEach(f=>{
     const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.justifyContent = "space-between";
-    div.style.alignItems = "center";
-    div.style.marginBottom = "8px";
+    div.className = "folder-item";
 
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
-    nameBtn.style.flex="1";
+    nameBtn.className = "folder-name";
 
     nameBtn.onclick = ()=>{
       if(parentId === null){
         drawFolderScreen(f.id);
       } else {
-        // ★ 親フォルダIDを渡す
         drawWordScreen(f.id, parentId);
       }
     };
 
-    const actions = document.createElement("span");
+    const actions = document.createElement("div");
+    actions.className = "folder-actions";
 
-    const addSubBtn = document.createElement("button");
-    addSubBtn.textContent = "+";
-    addSubBtn.onclick = ()=>{
-      const subName = prompt("サブフォルダ名");
-      if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
-    };
-    actions.appendChild(addSubBtn);
+    // ★ サブフォルダ追加は親フォルダのみ許可
+    if(parentId !== null){
+      const addSubBtn = document.createElement("button");
+      addSubBtn.textContent = "+";
+      addSubBtn.className = "mini-btn";
+      addSubBtn.onclick = ()=>{
+        const subName = prompt("サブフォルダ名");
+        if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
+      };
+      actions.appendChild(addSubBtn);
+    }
 
     const renameBtn = document.createElement("button");
     renameBtn.textContent = "✎";
+    renameBtn.className = "mini-btn";
     renameBtn.onclick = ()=>{
       const newName = prompt("新しい名前", f.name);
       if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }
@@ -69,6 +79,7 @@ export function drawFolderScreen(parentId = null) {
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑";
+    deleteBtn.className = "mini-btn";
     deleteBtn.onclick = ()=>{
       if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
     };
@@ -98,6 +109,9 @@ export function drawFolderScreen(parentId = null) {
 export function drawWordScreen(subFolderId, parentFolderId){
   document.body.className = "word-screen";
 
+  // ★ タイトル切り替え
+  setTitle("単語一覧");
+
   currentFolderId = subFolderId;
   const app = document.getElementById("app");
   const words = getWords(subFolderId);
@@ -105,7 +119,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
   app.innerHTML=`
     <div style="padding:0 10px">
       <button id="backBtn">← 戻る</button>
-      <h2>単語一覧</h2>
       <div id="wordList"></div>
       <input id="wordInput" placeholder="単語">
       <input id="answerInput" placeholder="意味">
@@ -119,20 +132,20 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   words.forEach(w=>{
     const div=document.createElement("div");
-    div.style.marginBottom="12px";
+    div.className="word-item";
 
     const text = document.createElement("div");
     text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
     div.appendChild(text);
 
     const tagDisplay = document.createElement("div");
-    tagDisplay.style.fontSize = "12px";
-    tagDisplay.style.margin = "4px 0";
+    tagDisplay.className="tag-display";
     tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
     div.appendChild(tagDisplay);
 
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
+    deleteBtn.className="mini-btn";
     deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
     div.appendChild(deleteBtn);
 
@@ -143,7 +156,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
       b.textContent=tag;
 
       if(w.tags.includes(tag)){
-        b.style.backgroundColor = "#ffd54f";
+        b.classList.add("active-tag");
       }
 
       b.onclick=()=>{
@@ -158,7 +171,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
     list.appendChild(div);
   });
 
-  // ★ 戻る先を親フォルダに変更
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
   app.querySelector("#addWordBtn").onclick = ()=>{
