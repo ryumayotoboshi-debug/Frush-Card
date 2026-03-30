@@ -6,7 +6,7 @@ import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 
-// ---------------- タイトル制御 ----------------
+// タイトル制御
 function setTitle(text){
   const title = document.getElementById("mainTitle");
   if(!title) return;
@@ -28,22 +28,21 @@ export function drawFolderScreen(parentId = null) {
 
   currentFolderId = parentId;
 
-  // ★ タイトル制御
   if(parentId === null){
-    setTitle("単語帳"); // 立ち上げ画面
+    setTitle("単語帳");
   }else{
-    setTitle("フォルダ一覧"); // サブフォルダ
+    setTitle("フォルダ一覧");
   }
 
   const folders = getFolderTree(parentId)
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
-    <div style="padding:0 10px">
+    <div class="panel">
       <div id="list"></div>
       <input id="newName" placeholder="新しいフォルダ">
-      <button id="addBtn">追加</button>
-      ${parentId !== null ? '<button id="backBtn">← 戻る</button>' : ''}
+      <button id="addBtn" class="cyber-btn">追加</button>
+      ${parentId !== null ? '<button id="backBtn" class="cyber-btn">← 戻る</button>' : ''}
     </div>
   `;
 
@@ -51,11 +50,11 @@ export function drawFolderScreen(parentId = null) {
 
   folders.forEach(f=>{
     const div = document.createElement("div");
-    div.className = "folder-item";
+    div.className = "folder-item neon-box";
 
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
-    nameBtn.className = "folder-name";
+    nameBtn.className = "folder-name cyber-btn";
 
     nameBtn.onclick = ()=>{
       if(parentId === null){
@@ -68,11 +67,10 @@ export function drawFolderScreen(parentId = null) {
     const actions = document.createElement("div");
     actions.className = "folder-actions";
 
-    // ★ サブフォルダ追加はサブ階層のみ
     if(parentId !== null){
       const addSubBtn = document.createElement("button");
       addSubBtn.textContent = "+";
-      addSubBtn.className = "mini-btn";
+      addSubBtn.className = "mini-btn cyber-btn";
       addSubBtn.onclick = ()=>{
         const subName = prompt("サブフォルダ名");
         if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
@@ -82,7 +80,7 @@ export function drawFolderScreen(parentId = null) {
 
     const renameBtn = document.createElement("button");
     renameBtn.textContent = "✎";
-    renameBtn.className = "mini-btn";
+    renameBtn.className = "mini-btn cyber-btn";
     renameBtn.onclick = ()=>{
       const newName = prompt("新しい名前", f.name);
       if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }
@@ -90,7 +88,7 @@ export function drawFolderScreen(parentId = null) {
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑";
-    deleteBtn.className = "mini-btn";
+    deleteBtn.className = "mini-btn cyber-btn";
     deleteBtn.onclick = ()=>{
       if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
     };
@@ -120,7 +118,6 @@ export function drawFolderScreen(parentId = null) {
 export function drawWordScreen(subFolderId, parentFolderId){
   document.body.className = "word-screen";
 
-  // ★ タイトル
   setTitle("単語一覧");
 
   currentFolderId = subFolderId;
@@ -128,14 +125,14 @@ export function drawWordScreen(subFolderId, parentFolderId){
   const words = getWords(subFolderId);
 
   app.innerHTML=`
-    <div style="padding:0 10px">
-      <button id="backBtn">← 戻る</button>
+    <div class="panel">
+      <button id="backBtn" class="cyber-btn">← 戻る</button>
       <div id="wordList"></div>
       <input id="wordInput" placeholder="単語">
       <input id="answerInput" placeholder="意味">
       <input id="explanationInput" placeholder="説明">
-      <button id="addWordBtn">追加</button>
-      <button id="startQuizBtn">クイズ開始</button>
+      <button id="addWordBtn" class="cyber-btn">追加</button>
+      <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
     </div>
   `;
 
@@ -143,7 +140,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   words.forEach(w=>{
     const div=document.createElement("div");
-    div.className="word-item";
+    div.className="word-item neon-box";
 
     const text = document.createElement("div");
     text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
@@ -156,7 +153,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
-    deleteBtn.className="mini-btn";
+    deleteBtn.className="mini-btn cyber-btn";
     deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
     div.appendChild(deleteBtn);
 
