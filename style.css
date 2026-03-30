@@ -7,13 +7,14 @@ body {
   color: #fff;
 }
 
-h1, h2 {
+h1 {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 button {
-  font-size: 18px;
-  padding: 12px;
+  font-size: 16px;
+  padding: 10px;
   margin: 4px 0;
   border: none;
   border-radius: 8px;
@@ -21,7 +22,7 @@ button {
 }
 
 input {
-  font-size: 18px;
+  font-size: 16px;
   padding: 10px;
   margin: 4px 0;
   width: 100%;
@@ -32,14 +33,52 @@ input {
   color: #fff;
 }
 
+/* フォルダ行 */
+.folder-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.folder-name {
+  flex: 1;
+}
+
+/* ボタン群 */
+.folder-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* 小さいボタン */
+.mini-btn {
+  font-size: 14px;
+  padding: 6px 8px;
+}
+
+/* 単語 */
+.word-item {
+  margin-bottom: 12px;
+}
+
+/* タグ */
+.tag-display {
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+/* タグ選択状態 */
+.active-tag {
+  background-color: #ffd54f;
+}
+
 /* --- スクロール制御 --- */
 
-/* フォルダ画面：スクロール完全禁止 */
 body.no-scroll {
   overflow: hidden;
 }
 
-/* 単語画面：縦OK・横禁止 */
 body.word-screen {
   overflow-x: hidden;
   overflow-y: auto;
