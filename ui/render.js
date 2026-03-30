@@ -2,6 +2,7 @@
 "use strict";
 
 import { getCards } from "../features/cards.js";
+import { generateQuiz, checkAnswer, skipQuiz } from "../features/quiz.js";
 
 export function renderCards() {
   const container = document.getElementById("cardList");
