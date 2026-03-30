@@ -5,23 +5,19 @@ import { seed } from "../data/seed.js";
 export function setupUI() {
   seed();
 
-  // クイズ操作
   document.getElementById("startQuizBtn").onclick = startQuiz;
   document.getElementById("skipBtn").onclick = skipQuestion;
   document.getElementById("nextBtn").onclick = nextQuestion;
 
-  // 登録
   document.getElementById("addBtn").onclick = () => {
+    const word = document.getElementById("wordInput").value;
+    const answer = document.getElementById("answerInput").value;
+    const explanation = document.getElementById("explanationInput").value;
+
     const card = {
-      word: document.getElementById("wordInput").value,
-      answer: document.getElementById("answerInput").value,
-      choices: [
-        document.getElementById("choice1").value,
-        document.getElementById("choice2").value,
-        document.getElementById("choice3").value,
-        document.getElementById("choice4").value
-      ],
-      explanation: document.getElementById("explanationInput").value,
+      word,
+      answer,
+      explanation,
       tags: []
     };
 
@@ -30,6 +26,7 @@ export function setupUI() {
   };
 }
 
+// ★ 全カードから選択肢を自動生成
 export function renderQuestion(card, onSelect) {
   const q = document.getElementById("question");
   const c = document.getElementById("choices");
@@ -37,7 +34,15 @@ export function renderQuestion(card, onSelect) {
   q.textContent = card.word;
   c.innerHTML = "";
 
-  card.choices.forEach(choice => {
+  const all = JSON.parse(localStorage.getItem("cards")) || [];
+
+  const wrongs = all
+    .filter(c => c.answer !== card.answer)
+    .map(c => c.answer);
+
+  const shuffled = shuffle([card.answer, ...wrongs.slice(0, 3)]);
+
+  shuffled.forEach(choice => {
     const btn = document.createElement("button");
     btn.textContent = choice;
     btn.onclick = () => onSelect(choice);
@@ -74,4 +79,8 @@ export function renderTagButtons(card, onToggle) {
     btn.onclick = () => onToggle(card, tag);
     container.appendChild(btn);
   });
+}
+
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
