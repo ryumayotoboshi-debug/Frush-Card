@@ -11,17 +11,24 @@ export function load() {
     data = null;
   }
 
-  // ★ データが壊れている or 不完全なら再生成
-  if (
-    !data ||
-    !Array.isArray(data.folders) ||
-    !Array.isArray(data.words) ||
-    data.folders.length === 0
-  ) {
+  // 🧠 データが存在しない場合のみ初期化
+  if (!data) {
     const initial = createInitialData();
     save(initial);
     return initial;
   }
+
+  // 🧠 欠損データを補完（リセットしない）
+  if (!Array.isArray(data.folders)) {
+    data.folders = [];
+  }
+
+  if (!Array.isArray(data.words)) {
+    data.words = [];
+  }
+
+  // 🔥 ここ重要：空でもOKにする（リセット禁止）
+  // data.folders.length === 0 は削除
 
   return data;
 }
