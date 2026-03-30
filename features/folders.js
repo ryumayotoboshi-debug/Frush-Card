@@ -1,6 +1,5 @@
 "use strict";
 import { load, save } from "../data/storage.js";
-import { createFolder } from "../data/models.js";
 
 export function getFolders() {
   return load().folders;
@@ -8,16 +7,24 @@ export function getFolders() {
 
 export function addFolder(name, parentId = null) {
   const data = load();
-  const folder = createFolder(name, parentId);
-  data.folders.push(folder);
+
+  data.folders.push({
+    id: crypto.randomUUID(),
+    name,
+    parentId
+  });
+
   save(data);
 }
 
 export function renameFolder(id, newName) {
   const data = load();
-  const f = data.folders.find(x => x.id === id);
-  if (f) f.name = newName;
-  save(data);
+  const target = data.folders.find(f => f.id === id);
+
+  if (target) {
+    target.name = newName;
+    save(data);
+  }
 }
 
 export function getFolderTree() {
@@ -32,5 +39,5 @@ export function getFolderTree() {
       }));
   }
 
-  return build(null);
+  return build();
 }
