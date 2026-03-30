@@ -7,35 +7,30 @@
 </head>
 <body>
 
-<h1>単語帳</h1>
+  <!-- ホーム -->
+  <div id="homeScreen">
+    <button id="startQuizBtn">クイズ開始</button>
+  </div>
 
-<form id="cardForm">
-  <input name="word" placeholder="単語" required>
-  <input name="meaning" placeholder="意味" required>
-  <input name="description" placeholder="説明">
-  <button type="submit">追加</button>
-</form>
+  <!-- クイズ画面 -->
+  <div id="quizScreen" style="display:none;">
+    <div id="question"></div>
 
-<div id="cardList"></div>
+    <div id="choices"></div>
 
-<div id="homeScreen">
-  <button id="startQuizBtn">クイズ開始</button>
-</div>
+    <div id="result"></div>
+    <div id="explanation"></div>
 
-<div id="quizScreen" style="display:none;">
-  <div id="question"></div>
-  <div id="choices"></div>
-  <div id="result"></div>
+    <!-- タグ表示 -->
+    <div id="tagStatus"></div>
 
-  <div id="tagButtons"></div>
+    <!-- タグ操作 -->
+    <div id="tagButtons"></div>
 
-  <button id="nextBtn" style="display:none;">次へ</button>
-  <button id="skipBtn">スキップ</button>
-</div>
+    <button id="nextBtn" style="display:none;">次へ</button>
+    <button id="skipBtn">スキップ</button>
+  </div>
 
-<h2>クイズ</h2>
-<div id="quiz"></div>
-
-<script type="module" src="main.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
