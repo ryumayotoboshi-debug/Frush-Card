@@ -1,6 +1,7 @@
 "use strict";
 import { getWords } from "./cards.js";
-import { drawFolderScreen } from "../ui/render.js";
+import { drawWordScreen } from "../ui/render.js";
+import { load, save } from "../data/storage.js";
 
 export function startQuiz(folderId){
   const words = getWords(folderId);
@@ -13,19 +14,24 @@ export function startQuiz(folderId){
     return arr.sort(()=>Math.random()-0.5);
   }
 
+  function updateLastStudied(){
+    const data = load();
+    const f = data.folders.find(f=>f.id===folderId);
+    if(f) f.lastStudied = Date.now();
+    save(data);
+  }
+
   function getChoices(correctWord){
-    // 他の単語から誤答を取得
     const others = words.filter(w => w.id !== correctWord.id);
     const wrongs = shuffle(others).slice(0,3).map(w=>w.back);
-
-    // 正解を含めてシャッフル
     return shuffle([correctWord.back, ...wrongs]);
   }
 
   function showQuestion(){
     if(index >= words.length){
+      updateLastStudied(); // ★追加
       alert("終了");
-      drawFolderScreen();
+      drawWordScreen(folderId); // ★修正
       return;
     }
 
@@ -65,7 +71,7 @@ export function startQuiz(folderId){
       choicesDiv.appendChild(btn);
     });
 
-    app.querySelector("#backBtn").onclick = ()=> drawFolderScreen();
+    app.querySelector("#backBtn").onclick = ()=> drawWordScreen(folderId); // ★修正
   }
 
   showQuestion();
