@@ -23,6 +23,7 @@ export function generateQuiz() {
     if (!choices.includes(cards[i].meaning)) {
       choices.push(cards[i].meaning);
     }
+    console.log("cards:", cards);
   }
 
   // シャッフル
