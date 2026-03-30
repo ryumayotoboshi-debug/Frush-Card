@@ -1,79 +1,39 @@
-import { getCards, updateCard } from "../data/storage.js";
-import { renderQuestion, renderTags, renderTagButtons } from "../ui/render.js";
-import { updateFolderStudyTime } from "./folders.js";
+"use strict";
+import { getWords } from "./cards.js";
+import { drawFolderScreen } from "../ui/render.js";
 
-export function answerQuestion(card, isCorrect) {
-  const data = load();
+export function startQuiz(folderId){
+  const words = getWords(folderId);
+  if(!words.length){ alert("単語がありません"); return; }
 
-  const target = data.words.find(w => w.id === card.id);
+  const app = document.getElementById("app");
+  let index=0;
 
-  if (target) {
-    if (isCorrect) target.stats.correct++;
-    else target.stats.wrong++;
+  function showQuestion(){
+    if(index>=words.length){ alert("終了"); drawFolderScreen(); return; }
+    const w = words[index];
+    app.innerHTML=`
+      <h2>単語クイズ</h2>
+      <div>${w.front}</div>
+      <div>
+        <button id="okBtn">正解</button>
+        <button id="ngBtn">不正解</button>
+      </div>
+      <button id="backBtn">戻る</button>
+    `;
 
-    save(data);
-
-    // 🔥 フォルダ更新
-    updateFolderStudyTime(target.folderId);
-  }
-}
-
-
-let current;
-let currentFolderId;
-let isAnswered = false;
-
-export function startQuiz(folderId) {
-  currentFolderId = folderId;
-  nextQuestion();
-}
-
-export function nextQuestion() {
-  const cards = getCards().filter(c => c.folderId === currentFolderId);
-  if (cards.length === 0) {
-    alert("単語がありません");
-    return;
-  }
-
-  isAnswered = false;
-  current = cards[Math.floor(Math.random() * cards.length)];
-
-  document.getElementById("result").textContent = "";
-  document.getElementById("explanation").textContent = "";
-  document.getElementById("skipBtn").style.display = "inline-block";
-
-  renderQuestion(current, selectAnswer);
-  renderTags(current.tags || []);
-  renderTagButtons(current, toggleTag);
-}
-
-export function selectAnswer(choice) {
-  if (isAnswered) return;
-  isAnswered = true;
-
-  document.getElementById("result").textContent =
-    choice === current.answer ? "正解" : "不正解";
-
-  document.getElementById("explanation").textContent = current.explanation;
-
-  document.getElementById("choices").innerHTML = "";
-  document.getElementById("skipBtn").style.display = "none";
-}
-
-export function skipQuestion() {
-  if (isAnswered) return;
-  nextQuestion();
-}
-
-function toggleTag(card, tag) {
-  if (!card.tags) card.tags = [];
-
-  if (card.tags.includes(tag)) {
-    card.tags = card.tags.filter(t => t !== tag);
-  } else {
-    card.tags.push(tag);
+    app.querySelector("#okBtn").onclick = ()=>{
+      w.stats.correct++;
+      index++;
+      showQuestion();
+    };
+    app.querySelector("#ngBtn").onclick = ()=>{
+      w.stats.wrong++;
+      index++;
+      showQuestion();
+    };
+    app.querySelector("#backBtn").onclick = ()=>drawFolderScreen();
   }
 
-  updateCard(card);
-  renderTags(card.tags);
+  showQuestion();
 }
