@@ -5,6 +5,13 @@ import { getCards } from "../features/cards.js";
 import { generateQuiz, checkAnswer, skipQuiz } from "../features/quiz.js";
 import { setMode, getMode } from "../features/quiz.js";
 import { toggleTag } from "../features/cards.js";
+import { startQuiz } from "../features/quiz.js";
+
+export function setupUI() {
+  document
+    .getElementById("startQuizBtn")
+    .addEventListener("click", startQuiz);
+}
 
 export function renderQuiz() {
   const container = document.getElementById("quiz");
