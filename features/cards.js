@@ -1,71 +1,38 @@
-//カード表示、表裏切り替え
 "use strict";
+import { load, save } from "../data/storage.js";
 
-import { createCard } from "../data/models.js";
-import { saveCards, loadCards } from "../data/storage.js";
-import { updateFolderStudyTime } from "./folders.js";
+export function getWords(folderId) {
+  return load().words.filter(w => w.folderId === folderId);
+}
 
-export function addCard(card) {
+export function addWord(folderId, front, back, note) {
   const data = load();
-
-  data.words.push(card);
-
-  save(data);
-
-  // 🔥 フォルダ更新
-  updateFolderStudyTime(card.folderId);
-}
-
-
-let cards = loadCards();
-
-export function getCards() {
-  return cards;
-}
-
-export function addCard(word, meaning, description) {
-  const newCard = createCard({
+  data.words.push({
     id: crypto.randomUUID(),
-    word,
-    meaning,
-    description
+    folderId,
+    front,
+    back,
+    note,
+    tags: [],
+    stats: { correct: 0, wrong: 0 }
   });
-
-  cards.push(newCard);
-  saveCards(cards);
+  // フォルダのlastStudied更新
+  const folder = data.folders.find(f => f.id === folderId);
+  if (folder) folder.lastStudied = Date.now();
+  save(data);
 }
 
-export function shuffleCards() {
-  return [...cards].sort(() => Math.random() - 0.5);
+export function deleteWord(id) {
+  const data = load();
+  data.words = data.words.filter(w => w.id !== id);
+  save(data);
 }
 
-export function getWeightedRandomCard() {
-  const totalWeight = cards.reduce(
-    (sum, card) => sum + (card.wrong + 1),
-    0
-  );
-
-  let random = Math.random() * totalWeight;
-
-  for (const card of cards) {
-    random -= (card.wrong + 1);
-    if (random <= 0) {
-      return card;
-    }
+export function updateTags(wordId, tags) {
+  const data = load();
+  const word = data.words.find(w => w.id === wordId);
+  if (word) {
+    word.tags = tags;
+    save(data);
   }
-
-  return cards[0];
-}
-
-export function toggleTag(cardId, tag) {
-  const card = cards.find(c => c.id === cardId);
-  if (!card) return;
-
-  if (card.tags.includes(tag)) {
-    card.tags = card.tags.filter(t => t !== tag);
-  } else {
-    card.tags.push(tag);
-  }
-
-  saveCards(cards);
 }
