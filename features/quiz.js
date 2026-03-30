@@ -7,6 +7,14 @@ import { getWeightedRandomCard } from "./cards.js";
 let currentQuiz = null;
 let currentCard = null;
 let mode = "wordToMeaning"; // ←追加
+let isAnswered = false;
+
+export function startQuiz() {
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display = "block";
+
+  nextQuestion();
+}
 
 export function setMode(newMode) {
   mode = newMode;
