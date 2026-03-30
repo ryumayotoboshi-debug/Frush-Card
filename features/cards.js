@@ -25,3 +25,21 @@ export function addCard(word, meaning, description) {
 export function shuffleCards() {
   return [...cards].sort(() => Math.random() - 0.5);
 }
+
+export function getWeightedRandomCard() {
+  const totalWeight = cards.reduce(
+    (sum, card) => sum + (card.wrong + 1),
+    0
+  );
+
+  let random = Math.random() * totalWeight;
+
+  for (const card of cards) {
+    random -= (card.wrong + 1);
+    if (random <= 0) {
+      return card;
+    }
+  }
+
+  return cards[0];
+}
