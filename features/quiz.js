@@ -11,7 +11,8 @@ export function startQuiz(folderId){
 
   function showQuestion(){
     if(index>=words.length){ alert("終了"); drawFolderScreen(); return; }
-    const w = words[index];
+    const w=words[index];
+
     app.innerHTML=`
       <h2>単語クイズ</h2>
       <div>${w.front}</div>
