@@ -1,5 +1,3 @@
-import { setupUI } from "./ui/render.js";
+import { initApp } from "./ui/render.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  setupUI();
-});
+document.addEventListener("DOMContentLoaded", initApp);
