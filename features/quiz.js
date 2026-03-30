@@ -24,6 +24,16 @@ export function getMode() {
   return mode;
 }
 
+function showQuestion(q) {
+  isAnswered = false;
+
+  document.getElementById("result").textContent = "";
+  document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("skipBtn").style.display = "inline-block";
+
+  renderQuestion(q);
+}
+
 export function generateQuiz() {
   const cards = shuffleCards();
   if (cards.length < 4) return null;
@@ -84,6 +94,35 @@ export function checkAnswer(answer) {
   return isCorrect;
 }
 
+export function selectAnswer(choice) {
+  if (isAnswered) return;
+
+  isAnswered = true;
+
+  const resultEl = document.getElementById("result");
+
+  if (choice === currentQuestion.answer) {
+    resultEl.textContent = "正解！";
+  } else {
+    resultEl.textContent = "不正解";
+  }
+
+  // ★ スキップボタンを消す
+  document.getElementById("skipBtn").style.display = "none";
+
+  // ★ 次へボタンを表示
+  document.getElementById("nextBtn").style.display = "inline-block";
+
+  // ★ 選択肢を消す
+  document.getElementById("choices").innerHTML = "";
+}
+
 export function skipQuiz() {
   return generateQuiz();
+}
+
+export function skipQuestion() {
+  if (isAnswered) return; // 念のため
+
+  nextQuestion();
 }
