@@ -1,37 +1,14 @@
-const CARD_KEY = "cards";
-const FOLDER_KEY = "folders";
+"use strict";
 
-export function getCards() {
-  return JSON.parse(localStorage.getItem(CARD_KEY)) || [];
+const KEY = "wordAppData";
+
+export function load() {
+  return JSON.parse(localStorage.getItem(KEY)) || {
+    folders: [],
+    words: []
+  };
 }
 
-export function saveCards(cards) {
-  localStorage.setItem(CARD_KEY, JSON.stringify(cards));
-}
-
-export function addCard(card) {
-  const cards = getCards();
-  cards.push(card);
-  saveCards(cards);
-}
-
-export function updateCard(updated) {
-  const cards = getCards().map(c =>
-    c.word === updated.word ? updated : c
-  );
-  saveCards(cards);
-}
-
-export function getFolders() {
-  return JSON.parse(localStorage.getItem(FOLDER_KEY)) || [];
-}
-
-export function saveFolders(folders) {
-  localStorage.setItem(FOLDER_KEY, JSON.stringify(folders));
-}
-
-export function addFolder(folder) {
-  const folders = getFolders();
-  folders.push(folder);
-  saveFolders(folders);
+export function save(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
 }
