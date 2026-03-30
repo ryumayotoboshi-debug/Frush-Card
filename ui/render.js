@@ -5,7 +5,7 @@ import { getWords, addWord, deleteWord, updateTags } from "../features/cards.js"
 
 let currentFolderId = null;
 
-// 全画面描画
+// 全体描画
 export function draw() {
   if (!currentFolderId) renderFolderView();
   else renderWordView(currentFolderId);
