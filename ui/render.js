@@ -1,15 +1,17 @@
 "use strict";
+
 import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../features/folders.js";
 import { getWords, addWord, deleteWord, updateTags } from "../features/cards.js";
 
 let currentFolderId = null;
 
-// ---------------- フォルダ画面 ----------------
+// 全画面描画
 export function draw() {
-  if (!currentFolderId) return renderFolderView();
-  renderWordView(currentFolderId);
+  if (!currentFolderId) renderFolderView();
+  else renderWordView(currentFolderId);
 }
 
+// ---------------- フォルダ画面 ----------------
 function renderFolderView() {
   const app = document.getElementById("app");
   if (!app) return;
@@ -18,7 +20,6 @@ function renderFolderView() {
 
   const folders = getFolderTree();
 
-  // フォルダリスト
   const div = document.createElement("div");
   function renderTree(nodes, depth = 0) {
     return nodes.map(n => `
@@ -47,13 +48,15 @@ function renderFolderView() {
   app.appendChild(input);
   app.appendChild(btn);
 
-  // 各ボタンイベント
+  // フォルダ選択
   div.querySelectorAll(".folder").forEach(el => {
     el.onclick = () => {
       currentFolderId = el.dataset.id;
       draw();
     };
   });
+
+  // サブフォルダ追加
   div.querySelectorAll("button[data-add]").forEach(btn => {
     btn.onclick = () => {
       const name = prompt("サブフォルダ名");
@@ -61,6 +64,8 @@ function renderFolderView() {
       draw();
     };
   });
+
+  // リネーム
   div.querySelectorAll("button[data-rename]").forEach(btn => {
     btn.onclick = () => {
       const name = prompt("新しい名前");
@@ -68,6 +73,8 @@ function renderFolderView() {
       draw();
     };
   });
+
+  // 削除
   div.querySelectorAll("button[data-delete]").forEach(btn => {
     btn.onclick = () => {
       if (confirm("削除しますか？")) deleteFolder(btn.dataset.delete);
@@ -82,6 +89,7 @@ function renderWordView(folderId) {
   if (!app) return;
 
   const words = getWords(folderId);
+
   app.innerHTML = `<button id="backFolder">← フォルダに戻る</button><h2>単語一覧</h2>`;
 
   app.querySelector("#backFolder").onclick = () => {
