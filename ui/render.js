@@ -1,136 +1,66 @@
-import { seed } from "../data/seed.js";
-import { getFolders, addFolder, addCard } from "../data/storage.js";
-import { startQuiz } from "../features/quiz.js";
+"use strict";
+import { getFolderTree, addFolder, renameFolder } from "../features/folders.js";
 
-let currentFolder = null;
+export function renderFolderView(container, onSelect) {
+  container.innerHTML = `
+    <h2>📁 フォルダ選択</h2>
+    <button id="addRoot">＋ フォルダ追加</button>
+    <div id="folderList"></div>
+  `;
 
-export function initApp() {
-  seed();
-  renderFolders();
+  const list = container.querySelector("#folderList");
 
-  document.getElementById("addFolderBtn").onclick = () => {
-    const name = document.getElementById("folderNameInput").value;
+  function renderTree(tree, depth = 0) {
+    return tree.map(f => `
+      <div style="margin-left:${depth * 20}px;">
+        <span class="folder-name" data-id="${f.id}">${f.name}</span>
+        <button data-add="${f.id}">＋</button>
+        <button data-rename="${f.id}">✎</button>
+      </div>
+      ${renderTree(f.children, depth + 1)}
+    `).join("");
+  }
 
-    addFolder({
-      id: Date.now().toString(),
-      name,
-      parentId: currentFolder
-    });
+  function refresh() {
+    list.innerHTML = renderTree(getFolderTree());
+  }
 
-    renderFolders();
+  refresh();
+
+  // フォルダ選択
+  list.addEventListener("click", e => {
+    if (e.target.classList.contains("folder-name")) {
+      onSelect(e.target.dataset.id);
+    }
+  });
+
+  // 追加
+  container.querySelector("#addRoot").onclick = () => {
+    const name = prompt("フォルダ名");
+    if (name) {
+      addFolder(name);
+      refresh();
+    }
   };
 
-  document.getElementById("addBtn").onclick = () => {
-    addCard({
-      word: wordInput.value,
-      answer: answerInput.value,
-      explanation: explanationInput.value,
-      folderId: currentFolder,
-      tags: []
-    });
-
-    alert("登録完了");
-  };
-
-  document.getElementById("backBtn").onclick = showFolders;
-  document.getElementById("backToFolders").onclick = showFolders;
-}
-
-function renderFolders(parentId = null) {
-  const list = document.getElementById("folderList");
-  list.innerHTML = "";
-
-  const folders = getFolders().filter(f => f.parentId === parentId);
-
-  folders.forEach(f => {
-    const btn = document.createElement("button");
-    btn.textContent = f.name;
-
-    btn.onclick = () => {
-      currentFolder = f.id;
-
-      // サブフォルダがあるなら潜る
-      const hasChild = getFolders().some(x => x.parentId === f.id);
-
-      if (hasChild) {
-        renderFolders(f.id);
-      } else {
-        showMenu();
+  list.addEventListener("click", e => {
+    if (e.target.dataset.add) {
+      const name = prompt("サブフォルダ名");
+      if (name) {
+        addFolder(name, e.target.dataset.add);
+        refresh();
       }
-    };
-
-    list.appendChild(btn);
+    }
   });
-}
 
-function showMenu() {
-  document.getElementById("folderScreen").style.display = "none";
-  document.getElementById("formScreen").style.display = "block";
-
-  const startBtn = document.createElement("button");
-  startBtn.textContent = "クイズ開始";
-
-  startBtn.onclick = () => {
-    document.getElementById("formScreen").style.display = "none";
-    document.getElementById("quizScreen").style.display = "block";
-    startQuiz(currentFolder);
-  };
-
-  document.getElementById("formScreen").appendChild(startBtn);
-}
-
-function showFolders() {
-  document.getElementById("quizScreen").style.display = "none";
-  document.getElementById("formScreen").style.display = "none";
-  document.getElementById("folderScreen").style.display = "block";
-  renderFolders();
-}
-
-export function renderQuestion(card, onSelect) {
-  const q = document.getElementById("question");
-  const c = document.getElementById("choices");
-
-  q.textContent = card.word;
-  c.innerHTML = "";
-
-  const all = JSON.parse(localStorage.getItem("cards")) || [];
-
-  const wrongs = all
-    .filter(x => x.answer !== card.answer)
-    .map(x => x.answer);
-
-  const choices = shuffle([card.answer, ...wrongs.slice(0, 3)]);
-
-  choices.forEach(choice => {
-    const btn = document.createElement("button");
-    btn.textContent = choice;
-    btn.onclick = () => onSelect(choice);
-    c.appendChild(btn);
+  // リネーム
+  list.addEventListener("click", e => {
+    if (e.target.dataset.rename) {
+      const name = prompt("新しい名前");
+      if (name) {
+        renameFolder(e.target.dataset.rename, name);
+        refresh();
+      }
+    }
   });
-}
-
-export function renderTags(tags) {
-  const el = document.getElementById("tagStatus");
-  el.innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join("");
-}
-
-export function renderTagButtons(card, onToggle) {
-  const tags = ["苦手", "要復習", "完璧"];
-  const el = document.getElementById("tagButtons");
-
-  el.innerHTML = "";
-
-  tags.forEach(tag => {
-    const btn = document.createElement("button");
-    btn.textContent = tag;
-
-    if (card.tags?.includes(tag)) btn.classList.add("active");
-
-    btn.onclick = () => onToggle(card, tag);
-    el.appendChild(btn);
-  });
-}
-
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
 }
