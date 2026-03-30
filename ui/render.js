@@ -1,84 +1,65 @@
 "use strict";
-import { getFolderTree, addFolder, renameFolder } from "../features/folders.js";
 
-export function renderFolderView(container, onSelect) {
+import { getFolders, addFolder } from "./features/folders.js";
 
-  function draw() {
-    const tree = getFolderTree();
+let currentFolderId = null;
 
-    container.innerHTML = `
-      <h2>📁 フォルダ選択</h2>
+export function draw() {
+  const container = document.getElementById("app");
+  container.innerHTML = "";
 
-      <button id="newBtn">新規作成</button>
+  const folders = getFolders(currentFolderId);
 
-      <div id="newArea" style="display:none;">
-        <input id="newName" placeholder="フォルダ名">
-        <button id="createBtn">作成</button>
-      </div>
+  // 📦 フォルダ表示
+  const list = document.createElement("div");
 
-      <div id="list"></div>
-    `;
+  folders.forEach(folder => {
+    const item = document.createElement("div");
+    item.textContent = folder.name;
+    item.style.padding = "10px";
+    item.style.borderBottom = "1px solid #ccc";
+    item.style.cursor = "pointer";
 
-    const list = container.querySelector("#list");
-
-    function renderTree(nodes, depth = 0) {
-      return nodes.map(n => `
-        <div style="margin-left:${depth * 20}px;">
-          <span class="folder" data-id="${n.id}">${n.name}</span>
-          <button data-add="${n.id}">＋</button>
-          <button data-rename="${n.id}">✎</button>
-        </div>
-        ${renderTree(n.children, depth + 1)}
-      `).join("");
-    }
-
-    list.innerHTML = renderTree(tree);
-
-    // ===== イベント（毎回付け直す） =====
-
-    container.querySelector("#newBtn").onclick = () => {
-      container.querySelector("#newArea").style.display = "block";
+    item.onclick = () => {
+      currentFolderId = folder.id;
+      draw();
     };
 
-    container.querySelector("#createBtn").onclick = () => {
-      const input = container.querySelector("#newName");
-      const name = input.value.trim();
+    list.appendChild(item);
+  });
 
-      if (!name) return;
+  container.appendChild(list);
 
-      addFolder(name);
-      input.value = "";
+  // 🆕 新規作成エリア
+  const input = document.createElement("input");
+  input.id = "newName";
+  input.placeholder = "フォルダ名";
+  input.style.display = "block";
+  input.style.marginTop = "10px";
 
-      draw(); // ★ 再描画（これが重要）
-    };
+  const btn = document.createElement("button");
+  btn.id = "createBtn";
+  btn.textContent = "新規作成";
+  btn.style.marginTop = "5px";
 
-    list.onclick = (e) => {
+  btn.onclick = () => {
+    const name = input.value.trim();
+    if (!name) return;
 
-      // フォルダ選択
-      if (e.target.classList.contains("folder")) {
-        onSelect(e.target.dataset.id);
-        return;
-      }
+    addFolder(name);
 
-      // サブフォルダ
-      if (e.target.dataset.add) {
-        const name = prompt("サブフォルダ名");
-        if (name) {
-          addFolder(name, e.target.dataset.add);
-          draw();
-        }
-      }
+    // 🔍 保存確認ログ
+    console.log(
+      "保存確認:",
+      JSON.parse(localStorage.getItem("wordAppData"))
+    );
 
-      // リネーム
-      if (e.target.dataset.rename) {
-        const name = prompt("新しい名前");
-        if (name) {
-          renameFolder(e.target.dataset.rename, name);
-          draw();
-        }
-      }
-    };
-  }
+    input.value = "";
 
-  draw();
+    // 🔥 再描画（これが重要）
+    draw();
+  };
+
+  container.appendChild(input);
+  container.appendChild(btn);
 }
