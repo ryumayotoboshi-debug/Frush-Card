@@ -27,7 +27,7 @@ export function drawFolderScreen() {
 
   function renderTree(nodes, depth = 0) {
     return nodes.map(n => `
-      <div style="margin-left:${depth*20}px; padding:4px; border:1px solid #00ffcc; border-radius:6px; margin-bottom:4px; background:#222; color:#0ff; cursor:pointer;">
+      <div style="margin-left:${depth*20}px; padding:4px; border:1px solid #0ff; border-radius:6px; margin-bottom:4px; background:#222; color:#0ff; cursor:pointer;">
         <span class="folder" data-id="${n.id}">${n.name}</span>
         <button data-add="${n.id}">＋</button>
         <button data-rename="${n.id}">✎</button>
@@ -39,7 +39,13 @@ export function drawFolderScreen() {
 
   list.innerHTML = renderTree(folders);
 
-  // 新規作成
+  const backBtn = app.querySelector("#backBtn");
+  backBtn.onclick = () => {
+    currentFolderId = null;
+    drawFolderScreen();
+  };
+  backBtn.style.display = currentFolderId ? "inline-block" : "none";
+
   app.querySelector("#newBtn").onclick = () => {
     app.querySelector("#newArea").style.display = "block";
   };
@@ -52,27 +58,16 @@ export function drawFolderScreen() {
     drawFolderScreen();
   };
 
-  // 戻るボタン
-  const backBtn = app.querySelector("#backBtn");
-  backBtn.onclick = () => {
-    currentFolderId = null;
-    drawFolderScreen();
-  };
-  backBtn.style.display = currentFolderId ? "inline-block" : "none";
-
-  // フォルダ操作
   list.onclick = (e) => {
     const id = e.target.dataset.id || e.target.dataset.add || e.target.dataset.rename || e.target.dataset.delete;
     if (!id) return;
 
-    // 選択
     if (e.target.classList.contains("folder")) {
       currentFolderId = id;
       drawWordScreen();
       return;
     }
 
-    // サブフォルダ作成
     if (e.target.dataset.add) {
       const name = prompt("サブフォルダ名");
       if (name) {
@@ -82,7 +77,6 @@ export function drawFolderScreen() {
       return;
     }
 
-    // リネーム
     if (e.target.dataset.rename) {
       const name = prompt("新しい名前");
       if (name) {
@@ -92,7 +86,6 @@ export function drawFolderScreen() {
       return;
     }
 
-    // 削除
     if (e.target.dataset.delete) {
       if (confirm("本当に削除しますか？")) {
         deleteFolder(id);
@@ -101,11 +94,12 @@ export function drawFolderScreen() {
       return;
     }
   };
-};
+}
 
-// 単語一覧画面
 function drawWordScreen() {
   const app = document.getElementById("app");
+  if (!app) return;
+
   const words = getWords(currentFolderId);
 
   app.innerHTML = `
@@ -131,7 +125,6 @@ function drawWordScreen() {
     </div>
   `).join("");
 
-  // タグ付け
   list.onclick = (e) => {
     if (e.target.dataset.tag) {
       updateWordTags(e.target.dataset.tag, e.target.dataset.value);
@@ -139,7 +132,6 @@ function drawWordScreen() {
     }
   };
 
-  // 単語追加
   app.querySelector("#addBtn").onclick = () => {
     const front = app.querySelector("#wordInput").value.trim();
     const back = app.querySelector("#answerInput").value.trim();
@@ -149,7 +141,6 @@ function drawWordScreen() {
     drawWordScreen();
   };
 
-  // クイズ開始
   app.querySelector("#quizStartBtn").onclick = () => {
     startQuiz(currentFolderId, () => drawWordScreen());
   };
