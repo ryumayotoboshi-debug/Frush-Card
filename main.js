@@ -1,6 +1,8 @@
 "use strict";
 
-import { draw } from "./ui/render.js";
+import { drawFolderScreen } from "./ui/render.js";
 
-// 初回描画
-draw();
+// iPhoneでもJSが動いているか確認
+alert("main.js 読み込み成功");
+
+drawFolderScreen();
