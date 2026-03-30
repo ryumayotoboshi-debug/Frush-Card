@@ -1,15 +1,12 @@
 "use strict";
 
-import { renderFolderView } from "./ui/render.js";
+import { draw } from "./ui/render.js";
 
-// 🔥 正しいコンテナを指定
-const app = document.getElementById("folderList");
+// 🔥 実行確認ログ
+console.log("main.js 読み込み成功");
 
-if (!app) {
-  console.error("folderListが見つかりません");
-}
-
-// フォルダUI描画
-renderFolderView(app, (folderId) => {
-  console.log("選択フォルダ:", folderId);
+// 初期描画
+window.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM読み込み完了");
+  draw();
 });
