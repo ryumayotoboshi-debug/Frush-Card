@@ -2,9 +2,10 @@
 "use strict";
 
 import { setupForm } from "./ui/form.js";
-import { renderCards } from "./ui/render.js";
+import { renderCards, renderQuiz } from "./ui/render.js";
 
 window.addEventListener("DOMContentLoaded", () => {
   setupForm();
   renderCards();
+  renderQuiz(); // ←追加
 });
