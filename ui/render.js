@@ -1,128 +1,53 @@
-//DOM生成専用、画面描画の専用担当
-"use strict";
-
-import { getCards } from "../features/cards.js";
-import { generateQuiz, checkAnswer, skipQuiz } from "../features/quiz.js";
-import { setMode, getMode } from "../features/quiz.js";
-import { toggleTag } from "../features/cards.js";
-import { startQuiz } from "../features/quiz.js";
+import { startQuiz, skipQuestion, nextQuestion } from "../features/quiz.js";
 
 export function setupUI() {
-  document
-    .getElementById("startQuizBtn")
-    .addEventListener("click", startQuiz);
+  document.getElementById("startQuizBtn").addEventListener("click", startQuiz);
+  document.getElementById("skipBtn").addEventListener("click", skipQuestion);
+  document.getElementById("nextBtn").addEventListener("click", nextQuestion);
 }
 
-export function renderQuiz() {
-  const container = document.getElementById("quiz");
-  container.innerHTML = "";
+export function renderQuestion(card, onSelect) {
+  const q = document.getElementById("question");
+  const c = document.getElementById("choices");
 
-  const quiz = generateQuiz();
+  q.textContent = card.word;
+  c.innerHTML = "";
 
-  if (!quiz) {
-    container.innerHTML = "カードが足りません（4枚以上必要）";
-    return;
-  }
-
-  // 問題
-  const question = document.createElement("h2");
-  question.textContent = quiz.question;
-  container.appendChild(question);
-
-  // 回答エリア
-  const choiceArea = document.createElement("div");
-  container.appendChild(choiceArea);
-
-  // 結果エリア
-  const resultArea = document.createElement("div");
-  container.appendChild(resultArea);
-
-  // タグエリア
-  const tagArea = document.createElement("div");
-  tagArea.className = "tag-area";
-  container.appendChild(tagArea);
-
-  // 操作エリア
-  const controlArea = document.createElement("div");
-  controlArea.className = "control-area";
-  container.appendChild(controlArea);
-
-  let answered = false;
-
-  // 選択肢
-  quiz.choices.forEach(choice => {
+  card.choices.forEach(choice => {
     const btn = document.createElement("button");
     btn.textContent = choice;
-
-    btn.addEventListener("click", () => {
-      if (answered) return;
-      answered = true;
-
-      const isCorrect = checkAnswer(choice);
-
-      // 選択肢を消す
-      choiceArea.innerHTML = "";
-
-      // 結果表示
-      resultArea.innerHTML = `
-        <p>${isCorrect ? "正解！" : "不正解"}</p>
-        <p>${quiz.description || ""}</p>
-      `;
-
-      // タグボタン生成
-      ["苦手", "要復習", "完璧"].forEach(tag => {
-        const tagBtn = document.createElement("button");
-        tagBtn.textContent = tag;
-
-        tagBtn.addEventListener("click", () => {
-          toggleTag(quiz.cardId, tag);
-        });
-
-        tagArea.appendChild(tagBtn);
-      });
-
-      // 次へボタン
-      const nextBtn = document.createElement("button");
-      nextBtn.textContent = "次へ";
-
-      nextBtn.addEventListener("click", renderQuiz);
-      controlArea.appendChild(nextBtn);
-    });
-
-    choiceArea.appendChild(btn);
+    btn.onclick = () => onSelect(choice);
+    c.appendChild(btn);
   });
-
-  // スキップ（常に表示）
-  const skipBtn = document.createElement("button");
-  skipBtn.textContent = "スキップ";
-  skipBtn.addEventListener("click", renderQuiz);
-  controlArea.appendChild(skipBtn);
 }
 
+export function renderTags(tags) {
+  const el = document.getElementById("tagStatus");
+  el.innerHTML = "";
 
-export function renderCards() {
-  const container = document.getElementById("cardList");
+  tags.forEach(tag => {
+    const span = document.createElement("span");
+    span.textContent = tag;
+    span.className = "tag-label";
+    el.appendChild(span);
+  });
+}
+
+export function renderTagButtons(card, onToggle) {
+  const tags = ["苦手", "要復習", "完璧"];
+  const container = document.getElementById("tagButtons");
+
   container.innerHTML = "";
 
-  const cards = getCards();
+  tags.forEach(tag => {
+    const btn = document.createElement("button");
+    btn.textContent = tag;
 
-  cards.forEach(card => {
-    const div = document.createElement("div");
-    div.className = "card";
+    if (card.tags && card.tags.includes(tag)) {
+      btn.classList.add("active");
+    }
 
-    div.innerHTML = `
-      <div class="front">${card.word}</div>
-      <div class="back hidden">
-        ${card.meaning}<br>
-        <small>${card.description}</small>
-      </div>
-    `;
-
-    div.addEventListener("click", () => {
-      div.querySelector(".front").classList.toggle("hidden");
-      div.querySelector(".back").classList.toggle("hidden");
-    });
-
-    container.appendChild(div);
+    btn.onclick = () => onToggle(card, tag);
+    container.appendChild(btn);
   });
 }
