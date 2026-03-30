@@ -1,80 +1,90 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Orbitron', sans-serif;
   padding: 10px;
   max-width: 480px;
   margin: 0 auto;
-  background-color: #111;
-  color: #fff;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
+  color: #0ff;
 }
 
-h1 {
+/* タイトル */
+#mainTitle {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  color: #0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
 }
 
-button {
-  font-size: 16px;
+/* パネル */
+.panel {
   padding: 10px;
-  margin: 4px 0;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
-input {
-  font-size: 16px;
-  padding: 10px;
-  margin: 4px 0;
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #555;
-  background-color: #222;
-  color: #fff;
+/* ネオン枠 */
+.neon-box {
+  border: 1px solid #0ff;
+  box-shadow: 0 0 8px #0ff;
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
-/* フォルダ行 */
+/* ボタン */
+.cyber-btn {
+  background: transparent;
+  color: #0ff;
+  border: 1px solid #0ff;
+  transition: 0.2s;
+}
+
+.cyber-btn:hover {
+  background: #0ff;
+  color: #000;
+  box-shadow: 0 0 10px #0ff;
+}
+
+/* 小ボタン */
+.mini-btn {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+/* フォルダ */
 .folder-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
-.folder-name {
-  flex: 1;
-}
-
-/* ボタン群 */
 .folder-actions {
   display: flex;
   gap: 4px;
 }
 
-/* 小さいボタン */
-.mini-btn {
-  font-size: 14px;
-  padding: 6px 8px;
-}
-
 /* 単語 */
 .word-item {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 /* タグ */
 .tag-display {
   font-size: 12px;
-  margin: 4px 0;
 }
 
-/* タグ選択状態 */
+/* タグ選択 */
 .active-tag {
-  background-color: #ffd54f;
+  background: #ff00ff;
+  color: #fff;
+  box-shadow: 0 0 8px #ff00ff;
 }
 
-/* --- スクロール制御 --- */
+/* 入力欄 */
+input {
+  background: #000;
+  color: #0ff;
+  border: 1px solid #0ff;
+}
 
+/* スクロール制御 */
 body.no-scroll {
   overflow: hidden;
 }
