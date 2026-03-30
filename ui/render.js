@@ -3,15 +3,34 @@
 
 import { getCards } from "../features/cards.js";
 import { generateQuiz, checkAnswer, skipQuiz } from "../features/quiz.js";
+import { setMode, getMode } from "../features/quiz.js";
 
 export function renderQuiz() {
   const container = document.getElementById("quiz");
   container.innerHTML = "";
 
+  // モード切替ボタン
+  const modeBtn = document.createElement("button");
+  modeBtn.textContent =
+    getMode() === "wordToMeaning"
+      ? "単語 → 意味"
+      : "意味 → 単語";
+
+  modeBtn.addEventListener("click", () => {
+    setMode(
+      getMode() === "wordToMeaning"
+        ? "meaningToWord"
+        : "wordToMeaning"
+    );
+    renderQuiz();
+  });
+
+  container.appendChild(modeBtn);
+
   const quiz = generateQuiz();
 
   if (!quiz) {
-    container.innerHTML = "カードが足りません（4枚以上必要）";
+    container.innerHTML += "<p>カードが足りません（4枚以上必要）</p>";
     return;
   }
 
@@ -28,13 +47,9 @@ export function renderQuiz() {
 
     btn.addEventListener("click", () => {
       const isCorrect = checkAnswer(choice);
-
       resultText.textContent = isCorrect ? "正解！" : "不正解";
 
-      // 少し待って次へ
-      setTimeout(() => {
-        renderQuiz();
-      }, 500);
+      setTimeout(() => renderQuiz(), 500);
     });
 
     container.appendChild(btn);
@@ -43,10 +58,7 @@ export function renderQuiz() {
   const skipBtn = document.createElement("button");
   skipBtn.textContent = "スキップ";
 
-  skipBtn.addEventListener("click", () => {
-    renderQuiz();
-  });
-
+  skipBtn.addEventListener("click", renderQuiz);
   container.appendChild(skipBtn);
 }
 
