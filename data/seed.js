@@ -1,34 +1,10 @@
-import { getAllCards, saveCards } from "./storage.js";
+import { getFolders, saveFolders } from "./storage.js";
 
 export function seed() {
-  if (getAllCards().length > 0) return;
+  if (getFolders().length > 0) return;
 
-  const sample = [
-    {
-      word: "apple",
-      answer: "りんご",
-      explanation: "果物",
-      tags: []
-    },
-    {
-      word: "dog",
-      answer: "犬",
-      explanation: "動物",
-      tags: []
-    },
-    {
-      word: "blue",
-      answer: "青",
-      explanation: "色",
-      tags: []
-    },
-    {
-      word: "car",
-      answer: "車",
-      explanation: "乗り物",
-      tags: []
-    }
-  ];
-
-  saveCards(sample);
+  saveFolders([
+    { id: "1", name: "英語", parentId: null },
+    { id: "2", name: "中学英語", parentId: "1" }
+  ]);
 }
