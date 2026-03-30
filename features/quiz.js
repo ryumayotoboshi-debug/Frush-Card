@@ -1,7 +1,22 @@
-import { getAllCards } from "../data/storage.js";
 import { renderQuestion, renderTags, renderTagButtons } from "../ui/render.js";
 
-let cards = [];
+let cards = [
+  {
+    word: "apple",
+    answer: "りんご",
+    choices: ["りんご", "みかん", "ぶどう", "バナナ"],
+    explanation: "果物の一種",
+    tags: []
+  },
+  {
+    word: "dog",
+    answer: "犬",
+    choices: ["猫", "犬", "鳥", "魚"],
+    explanation: "人間の友達",
+    tags: []
+  }
+];
+
 let current = null;
 let isAnswered = false;
 
@@ -9,17 +24,12 @@ export function startQuiz() {
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("quizScreen").style.display = "block";
 
-  cards = shuffle(getAllCards());
   nextQuestion();
 }
 
 export function nextQuestion() {
-  if (cards.length === 0) {
-    alert("問題がありません");
-    return;
-  }
-
   isAnswered = false;
+
   current = cards[Math.floor(Math.random() * cards.length)];
 
   document.getElementById("result").textContent = "";
@@ -28,11 +38,7 @@ export function nextQuestion() {
   document.getElementById("skipBtn").style.display = "inline-block";
 
   renderQuestion(current, selectAnswer);
-
-  // タグ表示
-  renderTags(current.tags || []);
-
-  // タグボタン
+  renderTags(current.tags);
   renderTagButtons(current, updateTags);
 }
 
@@ -55,7 +61,7 @@ export function selectAnswer(choice) {
   // ★ 選択肢消す
   document.getElementById("choices").innerHTML = "";
 
-  // ★ スキップ消す（ここが重要）
+  // ★ スキップ消す
   document.getElementById("skipBtn").style.display = "none";
 
   // ★ 次へ表示
@@ -77,8 +83,4 @@ function updateTags(card, tag) {
   }
 
   renderTags(card.tags);
-}
-
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
 }
