@@ -46,7 +46,7 @@ export function drawFolderScreen(parentId = null) {
 
   folders.forEach(f=>{
     const div = document.createElement("div");
-    div.className = "folder-item"; // ★ 枠削除
+    div.className = "folder-item neon-box"; // ★ 復旧
 
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
@@ -158,7 +158,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
-      b.className="mini-btn cyber-btn"; // ★ サイバー化
+      b.className="mini-btn cyber-btn";
 
       if(w.tags.includes(tag)){
         b.classList.add("active-tag");
