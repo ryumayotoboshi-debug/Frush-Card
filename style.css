@@ -42,3 +42,30 @@ button {
 #quiz button {
   margin: 6px 0;
 }
+
+/* 回答ボタン */
+#quiz > div:first-of-type button {
+  background: #222;
+}
+
+/* タグエリア */
+.tag-area {
+  margin-top: 15px;
+  border-top: 1px solid #0ff;
+  padding-top: 10px;
+}
+
+.tag-area button {
+  background: #033;
+}
+
+/* 操作エリア */
+.control-area {
+  margin-top: 20px;
+  border-top: 1px solid #0ff;
+  padding-top: 10px;
+}
+
+.control-area button {
+  background: #300;
+}
