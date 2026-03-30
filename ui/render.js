@@ -8,6 +8,7 @@ let currentFolderId = null;
 
 // ---------------- フォルダ画面 ----------------
 export function drawFolderScreen(parentId = null) {
+  document.body.className = "no-scroll";
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
 
@@ -93,6 +94,7 @@ export function drawFolderScreen(parentId = null) {
 
 // ---------------- 単語画面 ----------------
 export function drawWordScreen(subFolderId){
+  document.body.className = "word-screen";
   currentFolderId = subFolderId;
   const app = document.getElementById("app");
   const words = getWords(subFolderId);
