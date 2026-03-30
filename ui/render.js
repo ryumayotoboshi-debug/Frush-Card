@@ -9,6 +9,7 @@ let currentFolderId = null;
 // ---------------- フォルダ画面 ----------------
 export function drawFolderScreen(parentId = null) {
   document.body.className = "no-scroll";
+
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
 
@@ -44,7 +45,8 @@ export function drawFolderScreen(parentId = null) {
       if(parentId === null){
         drawFolderScreen(f.id);
       } else {
-        drawWordScreen(f.id);
+        // ★ 親フォルダIDを渡す
+        drawWordScreen(f.id, parentId);
       }
     };
 
@@ -93,8 +95,9 @@ export function drawFolderScreen(parentId = null) {
 }
 
 // ---------------- 単語画面 ----------------
-export function drawWordScreen(subFolderId){
+export function drawWordScreen(subFolderId, parentFolderId){
   document.body.className = "word-screen";
+
   currentFolderId = subFolderId;
   const app = document.getElementById("app");
   const words = getWords(subFolderId);
@@ -118,39 +121,34 @@ export function drawWordScreen(subFolderId){
     const div=document.createElement("div");
     div.style.marginBottom="12px";
 
-    // ★単語表示
     const text = document.createElement("div");
     text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
     div.appendChild(text);
 
-    // ★タグ表示
     const tagDisplay = document.createElement("div");
     tagDisplay.style.fontSize = "12px";
     tagDisplay.style.margin = "4px 0";
     tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
     div.appendChild(tagDisplay);
 
-    // ★削除ボタン
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
-    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId); };
+    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
     div.appendChild(deleteBtn);
 
-    // ★タグボタン
     const tagDiv=document.createElement("div");
 
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
 
-      // ★選択状態の可視化
       if(w.tags.includes(tag)){
         b.style.backgroundColor = "#ffd54f";
       }
 
       b.onclick=()=>{
         updateWordTags(w.id,tag);
-        drawWordScreen(subFolderId);
+        drawWordScreen(subFolderId, parentFolderId);
       };
 
       tagDiv.appendChild(b);
@@ -160,7 +158,8 @@ export function drawWordScreen(subFolderId){
     list.appendChild(div);
   });
 
-  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(null);
+  // ★ 戻る先を親フォルダに変更
+  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
   app.querySelector("#addWordBtn").onclick = ()=>{
     const front = app.querySelector("#wordInput").value.trim();
@@ -168,7 +167,7 @@ export function drawWordScreen(subFolderId){
     const note = app.querySelector("#explanationInput").value.trim();
     if(!front||!back){ alert("単語と意味は必須"); return; }
     addWord({front,back,note,folderId:subFolderId});
-    drawWordScreen(subFolderId);
+    drawWordScreen(subFolderId, parentFolderId);
   };
 
   app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
