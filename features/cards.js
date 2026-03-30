@@ -3,6 +3,19 @@
 
 import { createCard } from "../data/models.js";
 import { saveCards, loadCards } from "../data/storage.js";
+import { updateFolderStudyTime } from "./folders.js";
+
+export function addCard(card) {
+  const data = load();
+
+  data.words.push(card);
+
+  save(data);
+
+  // 🔥 フォルダ更新
+  updateFolderStudyTime(card.folderId);
+}
+
 
 let cards = loadCards();
 
