@@ -1,21 +1,33 @@
 body {
-  background: #0a0a0a;
-  color: #0ff;
+  font-family: sans-serif;
+  padding: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: #111;
+  color: #fff;
+}
+
+h1, h2 {
   text-align: center;
 }
 
 button {
-  margin: 10px;
+  font-size: 18px;
+  padding: 12px;
+  margin: 4px 0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+input {
+  font-size: 18px;
   padding: 10px;
-}
-
-.tag {
-  background: #222;
-  padding: 5px;
-  margin: 3px;
-}
-
-.active {
-  background: #00ffcc;
-  color: black;
+  margin: 4px 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #222;
+  color: #fff;
 }
