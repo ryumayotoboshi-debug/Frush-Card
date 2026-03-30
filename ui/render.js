@@ -1,7 +1,7 @@
 "use strict";
 
-import { getFolderTree, addFolder, renameFolder } from "../features/folders.js";
-import { getWords, addWord, updateWordTags } from "../features/cards.js";
+import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../features/folders.js";
+import { getWords, addWord, deleteWord, updateWordTags } from "../features/cards.js";
 import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
@@ -10,6 +10,7 @@ export function drawFolderScreen() {
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
 
+  // 最近勉強した順にソート
   const folders = getFolderTree().sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
@@ -20,25 +21,67 @@ export function drawFolderScreen() {
   `;
 
   const list = app.querySelector("#list");
-  folders.forEach(f => {
-    const div = document.createElement("div");
-    div.textContent = f.name;
-    div.style.cursor = "pointer";
-    div.style.margin = "4px 0";
-    div.onclick = () => drawWordScreen(f.id);
-    list.appendChild(div);
-  });
 
-  app.querySelector("#addBtn").onclick = () => {
+  function renderTree(nodes, depth=0){
+    return nodes.map(f=>{
+      const div = document.createElement("div");
+      div.style.marginLeft = `${depth*20}px`;
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.justifyContent = "space-between";
+
+      const nameBtn = document.createElement("span");
+      nameBtn.textContent = f.name;
+      nameBtn.style.cursor="pointer";
+      nameBtn.onclick = ()=> drawWordScreen(f.id);
+
+      const actions = document.createElement("span");
+
+      const addSubBtn = document.createElement("button");
+      addSubBtn.textContent = "+";
+      addSubBtn.onclick = ()=>{
+        const subName = prompt("サブフォルダ名");
+        if(subName) { addFolder(subName, f.id); drawFolderScreen(); }
+      };
+
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "✎";
+      renameBtn.onclick = ()=>{
+        const newName = prompt("新しい名前", f.name);
+        if(newName){ renameFolder(f.id,newName); drawFolderScreen(); }
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑";
+      deleteBtn.onclick = ()=>{
+        if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(); }
+      };
+
+      actions.appendChild(addSubBtn);
+      actions.appendChild(renameBtn);
+      actions.appendChild(deleteBtn);
+
+      div.appendChild(nameBtn);
+      div.appendChild(actions);
+
+      list.appendChild(div);
+
+      if(f.children) renderTree(f.children, depth+1);
+    });
+  }
+
+  renderTree(folders);
+
+  app.querySelector("#addBtn").onclick = ()=>{
     const name = app.querySelector("#newName").value.trim();
-    if (!name) return alert("名前を入力してください");
+    if(!name){ alert("名前を入力してください"); return; }
     addFolder(name, currentFolderId);
-    app.querySelector("#newName").value = "";
+    app.querySelector("#newName").value="";
     drawFolderScreen();
   };
 }
 
-function drawWordScreen(folderId) {
+function drawWordScreen(folderId){
   currentFolderId = folderId;
   const app = document.getElementById("app");
   const words = getWords(folderId);
@@ -57,13 +100,22 @@ function drawWordScreen(folderId) {
   const list = app.querySelector("#wordList");
   words.forEach(w=>{
     const div = document.createElement("div");
-    div.textContent = `${w.front} → ${w.back} : ${w.note}`;
+    div.style.marginBottom="8px";
+    div.textContent = `${w.front} → ${w.back} : ${w.note || "未設定"}`;
+
+    // 削除ボタン
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent="🗑";
+    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(folderId); };
+    div.appendChild(deleteBtn);
+
+    // タグボタン
     const tagDiv = document.createElement("div");
     ["完璧","要復習","苦手"].forEach(tag=>{
-      const b = document.createElement("button");
-      b.textContent = tag;
-      b.onclick = ()=>{
-        updateWordTags(w.id, tag);
+      const b=document.createElement("button");
+      b.textContent=tag;
+      b.onclick=()=>{
+        updateWordTags(w.id,tag);
         drawWordScreen(folderId);
       };
       tagDiv.appendChild(b);
@@ -72,9 +124,9 @@ function drawWordScreen(folderId) {
     list.appendChild(div);
   });
 
-  app.querySelector("#backBtn").onclick = () => drawFolderScreen();
+  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen();
 
-  app.querySelector("#addWordBtn").onclick = () => {
+  app.querySelector("#addWordBtn").onclick = ()=>{
     const front = app.querySelector("#wordInput").value.trim();
     const back = app.querySelector("#answerInput").value.trim();
     const note = app.querySelector("#explanationInput").value.trim();
@@ -83,5 +135,5 @@ function drawWordScreen(folderId) {
     drawWordScreen(folderId);
   };
 
-  app.querySelector("#startQuizBtn").onclick = () => startQuiz(folderId);
+  app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(folderId);
 }
