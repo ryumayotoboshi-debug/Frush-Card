@@ -3,12 +3,23 @@
 const KEY = "wordAppData";
 
 export function load() {
-  const data = JSON.parse(localStorage.getItem(KEY));
+  let data;
 
-  // ★ 初回起動時のみ初期データ生成
-  if (!data) {
+  try {
+    data = JSON.parse(localStorage.getItem(KEY));
+  } catch {
+    data = null;
+  }
+
+  // ★ データが壊れている or 不完全なら再生成
+  if (
+    !data ||
+    !Array.isArray(data.folders) ||
+    !Array.isArray(data.words) ||
+    data.folders.length === 0
+  ) {
     const initial = createInitialData();
-    localStorage.setItem(KEY, JSON.stringify(initial));
+    save(initial);
     return initial;
   }
 
@@ -19,7 +30,6 @@ export function save(data) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
 
-// ★ ここで初期データを確実に生成
 function createInitialData() {
   const rootId = crypto.randomUUID();
   const subId = crypto.randomUUID();
