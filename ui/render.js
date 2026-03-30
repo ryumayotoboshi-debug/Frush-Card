@@ -6,6 +6,7 @@ import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 
+// ---------------- フォルダ画面 ----------------
 export function drawFolderScreen() {
   const app = document.getElementById("app");
   if (!app) return alert("appが見つかりません");
@@ -34,7 +35,8 @@ export function drawFolderScreen() {
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
     nameBtn.style.flex="1";
-    nameBtn.onclick = ()=> { currentFolderId=f.id; drawFolderScreen(); };
+    // ★ここで単語画面に遷移
+    nameBtn.onclick = ()=> drawWordScreen(f.id);
 
     const actions = document.createElement("span");
 
@@ -77,13 +79,13 @@ export function drawFolderScreen() {
 
   if(currentFolderId){
     app.querySelector("#backBtn").onclick = ()=> {
-      const folders = getFolderTree(null);
       currentFolderId = null;
       drawFolderScreen();
     };
   }
 }
 
+// ---------------- 単語画面 ----------------
 export function drawWordScreen(folderId){
   currentFolderId = folderId;
   const app = document.getElementById("app");
