@@ -2,6 +2,7 @@
 
 import { getCards, shuffleCards } from "./cards.js";
 import { saveCards } from "../data/storage.js";
+import { getWeightedRandomCard } from "./cards.js";
 
 let currentQuiz = null;
 let currentCard = null;
@@ -19,7 +20,7 @@ export function generateQuiz() {
   const cards = shuffleCards();
   if (cards.length < 4) return null;
 
-  const correctCard = cards[0];
+  const correctCard = getWeightedRandomCard();
   currentCard = correctCard;
 
   let question, correctAnswer;
