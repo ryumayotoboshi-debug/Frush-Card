@@ -1,21 +1,11 @@
 "use strict";
 
 import { renderFolderView } from "./ui/render.js";
-import { renderApp } from "./ui/render.js";
-import { seed } from "./data/seed.js";
 
 const app = document.getElementById("app");
 
-let currentFolderId = null;
+renderFolderView(app, (folderId) => {
+  console.log("選択フォルダ:", folderId);
 
-// ★ 初期データ投入
-seed();
-
-function start() {
-  renderFolderView(app, (folderId) => {
-    currentFolderId = folderId;
-    renderApp(app, currentFolderId);
-  });
-}
-
-start();
+  // ※ここで既存の renderApp を呼ぶ構造にしてください
+});
