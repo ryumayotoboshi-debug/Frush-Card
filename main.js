@@ -2,14 +2,14 @@
 
 import { renderFolderView } from "./ui/render.js";
 
-import { draw } from "./render.js";
+// 🔥 正しいコンテナを指定
+const app = document.getElementById("folderList");
 
-draw();
+if (!app) {
+  console.error("folderListが見つかりません");
+}
 
-const app = document.getElementById("app");
-
+// フォルダUI描画
 renderFolderView(app, (folderId) => {
   console.log("選択フォルダ:", folderId);
-
-  // ※ここで既存の renderApp を呼ぶ構造にしてください
 });
