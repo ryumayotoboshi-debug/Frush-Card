@@ -1,5 +1,6 @@
-//localStorage操作をまとめる、データ保存の窓口
 "use strict";
+
+import { getSeedCards } from "./seed.js";
 
 const KEY = "wordAppCards";
 
@@ -9,5 +10,12 @@ export function saveCards(cards) {
 
 export function loadCards() {
   const data = localStorage.getItem(KEY);
-  return data ? JSON.parse(data) : [];
+
+  if (!data) {
+    const seed = getSeedCards();
+    saveCards(seed);
+    return seed;
+  }
+
+  return JSON.parse(data);
 }
