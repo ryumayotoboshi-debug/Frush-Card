@@ -1,6 +1,6 @@
 "use strict";
 
-import { load, save } from "../storage.js";
+import { load, save } from "../data/storage.js";
 
 /**
  * フォルダ追加
