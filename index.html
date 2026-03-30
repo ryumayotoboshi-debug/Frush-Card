@@ -12,19 +12,26 @@
     <button id="startQuizBtn">クイズ開始</button>
   </div>
 
+  <!-- 登録画面（復活） -->
+  <div id="formArea">
+    <h2>単語登録</h2>
+
+    <input id="wordInput" placeholder="単語">
+    <input id="answerInput" placeholder="意味">
+    <input id="explanationInput" placeholder="説明">
+
+    <button id="addBtn">登録</button>
+  </div>
+
   <!-- クイズ -->
   <div id="quizScreen" style="display:none;">
     <div id="question"></div>
-
     <div id="choices"></div>
 
     <div id="result"></div>
     <div id="explanation"></div>
 
-    <!-- タグ表示 -->
     <div id="tagStatus"></div>
-
-    <!-- タグ操作 -->
     <div id="tagButtons"></div>
 
     <button id="nextBtn" style="display:none;">次へ</button>
