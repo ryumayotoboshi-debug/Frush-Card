@@ -1,38 +1,21 @@
 "use strict";
 import { load, save } from "../data/storage.js";
 
-export function getWords(folderId) {
-  return load().words.filter(w => w.folderId === folderId);
+export function getWords(folderId){
+  return load().words.filter(w=>w.folderId===folderId);
 }
 
-export function addWord(folderId, front, back, note) {
+export function addWord({front,back,note,folderId}){
   const data = load();
-  data.words.push({
-    id: crypto.randomUUID(),
-    folderId,
-    front,
-    back,
-    note,
-    tags: [],
-    stats: { correct: 0, wrong: 0 }
-  });
-  // フォルダのlastStudied更新
-  const folder = data.folders.find(f => f.id === folderId);
-  if (folder) folder.lastStudied = Date.now();
+  data.words.push({id:crypto.randomUUID(), front, back, note, folderId, tags:[], stats:{correct:0,wrong:0}});
+  const f = data.folders.find(f=>f.id===folderId);
+  if(f) f.lastStudied = Date.now();
   save(data);
 }
 
-export function deleteWord(id) {
+export function updateWordTags(wordId, tag){
   const data = load();
-  data.words = data.words.filter(w => w.id !== id);
+  const w = data.words.find(w=>w.id===wordId);
+  if(w&&!w.tags.includes(tag)) w.tags.push(tag);
   save(data);
-}
-
-export function updateTags(wordId, tags) {
-  const data = load();
-  const word = data.words.find(w => w.id === wordId);
-  if (word) {
-    word.tags = tags;
-    save(data);
-  }
 }
