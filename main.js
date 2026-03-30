@@ -2,6 +2,10 @@
 
 import { renderFolderView } from "./ui/render.js";
 
+import { draw } from "./render.js";
+
+draw();
+
 const app = document.getElementById("app");
 
 renderFolderView(app, (folderId) => {
