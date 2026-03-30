@@ -104,3 +104,11 @@ body.word-screen {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+/* ★ 追加：フォルダ名の枠だけ消す */
+.folder-name {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  color: #0ff;
+}
