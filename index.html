@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>単語帳アプリ</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>単語帳</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>単語帳アプリ</h1>
+<h1>単語帳</h1>
 
-<!-- 登録画面 -->
-<div id="formScreen">
+<!-- フォルダ選択 -->
+<div id="folderScreen">
+  <h2>フォルダ選択</h2>
+  <div id="folderList"></div>
+
+  <input id="folderNameInput" placeholder="新規フォルダ">
+  <button id="addFolderBtn">追加</button>
+</div>
+
+<!-- 登録 -->
+<div id="formScreen" style="display:none;">
   <h2>単語登録</h2>
-
   <input id="wordInput" placeholder="単語">
   <input id="answerInput" placeholder="意味">
   <input id="explanationInput" placeholder="説明">
-
   <button id="addBtn">登録</button>
-</div>
 
-<hr>
-
-<!-- クイズ開始 -->
-<div id="homeScreen">
-  <button id="startQuizBtn">クイズ開始</button>
+  <button id="backToFolders">戻る</button>
 </div>
 
 <!-- クイズ -->
@@ -38,8 +40,10 @@
   <div id="tagStatus"></div>
   <div id="tagButtons"></div>
 
-  <button id="nextBtn" style="display:none;">次へ</button>
+  <button id="nextBtn">次へ</button>
   <button id="skipBtn">スキップ</button>
+
+  <button id="backBtn">フォルダへ戻る</button>
 </div>
 
 <script type="module" src="main.js"></script>
