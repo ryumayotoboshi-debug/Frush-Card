@@ -1,5 +1,7 @@
 "use strict";
 
+console.log("render.js 読み込み成功");
+
 import { getFolders, addFolder } from "./features/folders.js";
 
 let currentFolderId = null;
