@@ -29,3 +29,16 @@ button {
   font-size: 20px;
   padding: 15px;
 }
+
+#quiz div {
+  margin-top: 10px;
+}
+
+#quiz p {
+  font-size: 18px;
+  margin: 5px 0;
+}
+
+#quiz button {
+  margin: 6px 0;
+}
