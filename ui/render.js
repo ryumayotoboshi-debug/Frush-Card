@@ -49,7 +49,6 @@ export function drawFolderScreen(parentId = null) {
 
     const actions = document.createElement("span");
 
-    // ★どの階層でもサブフォルダ作成可能に変更
     const addSubBtn = document.createElement("button");
     addSubBtn.textContent = "+";
     addSubBtn.onclick = ()=>{
@@ -115,30 +114,50 @@ export function drawWordScreen(subFolderId){
 
   words.forEach(w=>{
     const div=document.createElement("div");
-    div.style.marginBottom="8px";
-    div.textContent=`${w.front} → ${w.back} : ${w.note||"未設定"}`;
+    div.style.marginBottom="12px";
 
+    // ★単語表示
+    const text = document.createElement("div");
+    text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
+    div.appendChild(text);
+
+    // ★タグ表示
+    const tagDisplay = document.createElement("div");
+    tagDisplay.style.fontSize = "12px";
+    tagDisplay.style.margin = "4px 0";
+    tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
+    div.appendChild(tagDisplay);
+
+    // ★削除ボタン
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
     deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId); };
     div.appendChild(deleteBtn);
 
+    // ★タグボタン
     const tagDiv=document.createElement("div");
+
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
+
+      // ★選択状態の可視化
+      if(w.tags.includes(tag)){
+        b.style.backgroundColor = "#ffd54f";
+      }
+
       b.onclick=()=>{
         updateWordTags(w.id,tag);
         drawWordScreen(subFolderId);
       };
+
       tagDiv.appendChild(b);
     });
-    div.appendChild(tagDiv);
 
+    div.appendChild(tagDiv);
     list.appendChild(div);
   });
 
-  // ★戻る先を「サブフォルダ一覧」に修正
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(null);
 
   app.querySelector("#addWordBtn").onclick = ()=>{
