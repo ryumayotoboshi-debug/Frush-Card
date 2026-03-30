@@ -1,8 +1,7 @@
-//入力UIの制御
 "use strict";
 
 import { addCard } from "../features/cards.js";
-import { renderCards } from "./render.js";
+import { renderCards, renderQuiz } from "./render.js";
 
 export function setupForm() {
   const form = document.getElementById("cardForm");
@@ -18,5 +17,6 @@ export function setupForm() {
     form.reset();
 
     renderCards();
+    renderQuiz(); // ←これが重要
   });
 }
