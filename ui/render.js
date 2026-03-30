@@ -14,18 +14,20 @@ export function draw() {
   const data = load();
   const currentFolder = data.folders.find(f => f.id === currentFolderId);
 
-  // 🔙 戻る
+  // 🔙 戻るボタン
   if (currentFolderId !== null) {
     const backBtn = document.createElement("button");
     backBtn.textContent = "← 戻る";
+
     backBtn.onclick = () => {
       currentFolderId = currentFolder?.parentId || null;
       draw();
     };
+
     container.appendChild(backBtn);
   }
 
-  // 📂 フォルダ一覧
+  // 📂 フォルダ一覧（最近勉強順）
   const folders = getFolders(currentFolderId);
 
   folders
@@ -47,13 +49,19 @@ export function draw() {
       container.appendChild(item);
     });
 
-  // 📚 フォルダ内なら単語表示
+  // 📚 フォルダ内処理
   if (currentFolderId !== null) {
 
     const words = getWords(currentFolderId);
 
-    // 🔤 単語リスト
+    // 🔤 単語一覧表示
     words.forEach(w => {
+
+      // 🧠 どの形式でも拾う（ここが重要）
+      const word = w.word || w.name || "(未設定)";
+      const meaning = w.meaning || w.desc || "(未設定)";
+      const note = w.note || w.memo || "";
+
       const card = document.createElement("div");
 
       card.style.border = "1px solid #00ffcc";
@@ -61,9 +69,9 @@ export function draw() {
       card.style.padding = "10px";
 
       card.innerHTML = `
-        <div><strong>${w.word}</strong></div>
-        <div>${w.meaning}</div>
-        <div style="opacity:0.7">${w.note || ""}</div>
+        <div><strong>${word}</strong></div>
+        <div>${meaning}</div>
+        <div style="opacity:0.7">${note}</div>
       `;
 
       container.appendChild(card);
@@ -106,7 +114,7 @@ export function draw() {
     container.appendChild(noteInput);
     container.appendChild(addBtn);
 
-    // 🎮 クイズボタン
+    // 🎮 クイズ
     const quizBtn = document.createElement("button");
     quizBtn.textContent = "クイズ開始";
 
@@ -117,15 +125,18 @@ export function draw() {
       }
 
       const q = words[Math.floor(Math.random() * words.length)];
-      const answer = prompt(`${q.word} の意味は？`);
 
-      if (answer === q.meaning) {
+      const word = q.word || q.name;
+      const meaning = q.meaning || q.desc;
+
+      const answer = prompt(`${word} の意味は？`);
+
+      if (answer === meaning) {
         alert("正解！");
       } else {
-        alert(`不正解！正解は ${q.meaning}`);
+        alert(`不正解！正解は ${meaning}`);
       }
 
-      // 🧠 勉強扱い
       touchFolder(currentFolderId);
     };
 
