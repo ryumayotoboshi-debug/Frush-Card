@@ -1,4 +1,4 @@
-import { getAllCards } from "../data/storage.js";
+import { getAllCards, updateCard } from "../data/storage.js";
 import { renderQuestion, renderTags, renderTagButtons } from "../ui/render.js";
 
 let current;
@@ -31,14 +31,15 @@ export function selectAnswer(choice) {
 
   isAnswered = true;
 
+  const isCorrect = choice === current.answer;
+
   document.getElementById("result").textContent =
-    choice === current.answer ? "正解！" : "不正解";
+    isCorrect ? "正解！" : "不正解";
 
   document.getElementById("explanation").textContent = current.explanation;
 
   document.getElementById("choices").innerHTML = "";
 
-  // ★ここ重要
   document.getElementById("skipBtn").style.display = "none";
   document.getElementById("nextBtn").style.display = "inline-block";
 }
@@ -48,6 +49,7 @@ export function skipQuestion() {
   nextQuestion();
 }
 
+// ★ここが重要：タグ保存
 function toggleTag(card, tag) {
   if (!card.tags) card.tags = [];
 
@@ -56,6 +58,9 @@ function toggleTag(card, tag) {
   } else {
     card.tags.push(tag);
   }
+
+  // ★ localStorageへ保存
+  updateCard(card);
 
   renderTags(card.tags);
 }
