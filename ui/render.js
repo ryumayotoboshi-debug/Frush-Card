@@ -1,213 +1,146 @@
 "use strict";
 
-import { getFolders, addFolder } from "../features/folders.js";
-import { load, save } from "../data/storage.js";
+import { getFolders } from "../features/folders.js";
+import { addFolder, touchFolder } from "../features/folders.js";
+import { getWords, addWord } from "../features/words.js";
+import { load } from "../data/storage.js";
 
 let currentFolderId = null;
-let currentQuiz = null;
 
-// ====================
-// 画面切り替え
-// ====================
-function show(screenId) {
-  document.getElementById("folderScreen").style.display = "none";
-  document.getElementById("formScreen").style.display = "none";
-  document.getElementById("quizScreen").style.display = "none";
-
-  document.getElementById(screenId).style.display = "block";
-}
-
-// ====================
-// フォルダ画面
-// ====================
 export function draw() {
-  show("folderScreen");
-
   const container = document.getElementById("folderList");
   container.innerHTML = "";
 
   const data = load();
-
-  // 🔥 並び替え（最近勉強した順）
-  const folders = getFolders(currentFolderId).sort((a, b) => {
-    return (b.lastStudied || 0) - (a.lastStudied || 0);
-  });
+  const currentFolder = data.folders.find(f => f.id === currentFolderId);
 
   // 🔙 戻る
   if (currentFolderId !== null) {
-    const back = document.createElement("button");
-    back.textContent = "← 戻る";
-    back.onclick = () => {
-      const current = data.folders.find(f => f.id === currentFolderId);
-      currentFolderId = current?.parentId || null;
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "← 戻る";
+    backBtn.onclick = () => {
+      currentFolderId = currentFolder?.parentId || null;
       draw();
     };
-    container.appendChild(back);
+    container.appendChild(backBtn);
   }
 
-  // 📁 フォルダ表示
-  folders.forEach(folder => {
-    const div = document.createElement("div");
-    div.textContent = folder.name;
+  // 📂 フォルダ一覧
+  const folders = getFolders(currentFolderId);
 
-    div.style.background = "#222";
-    div.style.color = "#00ffcc";
-    div.style.padding = "10px";
-    div.style.margin = "5px 0";
+  folders
+    .sort((a, b) => (b.lastStudied || 0) - (a.lastStudied || 0))
+    .forEach(folder => {
+      const item = document.createElement("div");
+      item.textContent = folder.name;
 
-    div.onclick = () => {
-      currentFolderId = folder.id;
+      item.style.background = "#222";
+      item.style.color = "#00ffcc";
+      item.style.margin = "8px 0";
+      item.style.padding = "10px";
+
+      item.onclick = () => {
+        currentFolderId = folder.id;
+        draw();
+      };
+
+      container.appendChild(item);
+    });
+
+  // 📚 フォルダ内なら単語表示
+  if (currentFolderId !== null) {
+
+    const words = getWords(currentFolderId);
+
+    // 🔤 単語リスト
+    words.forEach(w => {
+      const card = document.createElement("div");
+
+      card.style.border = "1px solid #00ffcc";
+      card.style.margin = "10px 0";
+      card.style.padding = "10px";
+
+      card.innerHTML = `
+        <div><strong>${w.word}</strong></div>
+        <div>${w.meaning}</div>
+        <div style="opacity:0.7">${w.note || ""}</div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // ✏️ 単語追加フォーム
+    const wordInput = document.createElement("input");
+    wordInput.placeholder = "単語";
+
+    const meaningInput = document.createElement("input");
+    meaningInput.placeholder = "意味";
+
+    const noteInput = document.createElement("input");
+    noteInput.placeholder = "説明（任意）";
+
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "単語を追加";
+
+    addBtn.onclick = () => {
+      if (!wordInput.value || !meaningInput.value) {
+        alert("単語と意味は必須です");
+        return;
+      }
+
+      addWord(
+        wordInput.value,
+        meaningInput.value,
+        noteInput.value,
+        currentFolderId
+      );
+
+      // 🧠 勉強扱い
+      touchFolder(currentFolderId);
+
       draw();
     };
 
-    container.appendChild(div);
-  });
+    container.appendChild(wordInput);
+    container.appendChild(meaningInput);
+    container.appendChild(noteInput);
+    container.appendChild(addBtn);
 
-  // 🆕 フォルダ追加
+    // 🎮 クイズボタン
+    const quizBtn = document.createElement("button");
+    quizBtn.textContent = "クイズ開始";
+
+    quizBtn.onclick = () => {
+      if (words.length === 0) {
+        alert("単語がありません");
+        return;
+      }
+
+      const q = words[Math.floor(Math.random() * words.length)];
+      const answer = prompt(`${q.word} の意味は？`);
+
+      if (answer === q.meaning) {
+        alert("正解！");
+      } else {
+        alert(`不正解！正解は ${q.meaning}`);
+      }
+
+      // 🧠 勉強扱い
+      touchFolder(currentFolderId);
+    };
+
+    container.appendChild(quizBtn);
+  }
+
+  // 📁 フォルダ追加
   const input = document.getElementById("folderNameInput");
   const btn = document.getElementById("addFolderBtn");
 
   btn.onclick = () => {
-    const name = input.value.trim();
-    if (!name) return;
+    if (!input.value) return;
 
-    addFolder(name, currentFolderId);
+    addFolder(input.value, currentFolderId);
     input.value = "";
     draw();
   };
-
-  // 📘 単語登録へ
-  const goForm = document.createElement("button");
-  goForm.textContent = "単語を追加";
-  goForm.onclick = () => showForm();
-  container.appendChild(goForm);
-
-  // 🧠 クイズへ
-  const goQuiz = document.createElement("button");
-  goQuiz.textContent = "クイズ開始";
-  goQuiz.onclick = () => startQuiz();
-  container.appendChild(goQuiz);
-}
-
-// ====================
-// 単語追加
-// ====================
-function showForm() {
-  show("formScreen");
-
-  const addBtn = document.getElementById("addBtn");
-  const back = document.getElementById("backToFolders");
-
-  addBtn.onclick = () => {
-    const word = document.getElementById("wordInput").value;
-    const answer = document.getElementById("answerInput").value;
-    const note = document.getElementById("explanationInput").value;
-
-    if (!word || !answer) return;
-
-    const data = load();
-
-    data.words.push({
-      id: crypto.randomUUID(),
-      front: word,
-      back: answer,
-      note,
-      folderId: currentFolderId,
-      tags: [],
-      stats: { correct: 0, wrong: 0 }
-    });
-
-    // 🔥 学習扱い
-    updateLastStudied(data);
-
-    save(data);
-
-    alert("登録しました");
-  };
-
-  back.onclick = () => draw();
-}
-
-// ====================
-// クイズ
-// ====================
-function startQuiz() {
-  const data = load();
-
-  const words = data.words.filter(w => w.folderId === currentFolderId);
-
-  if (words.length === 0) {
-    alert("単語がありません");
-    return;
-  }
-
-  currentQuiz = words[Math.floor(Math.random() * words.length)];
-
-  show("quizScreen");
-
-  document.getElementById("question").textContent = currentQuiz.front;
-
-  const choicesDiv = document.getElementById("choices");
-  choicesDiv.innerHTML = "";
-
-  const choices = shuffle([
-    currentQuiz.back,
-    ...data.words
-      .filter(w => w.id !== currentQuiz.id)
-      .slice(0, 3)
-      .map(w => w.back)
-  ]);
-
-  choices.forEach(choice => {
-    const btn = document.createElement("button");
-    btn.textContent = choice;
-
-    btn.onclick = () => answer(choice);
-
-    choicesDiv.appendChild(btn);
-  });
-
-  document.getElementById("nextBtn").onclick = () => startQuiz();
-  document.getElementById("backBtn").onclick = () => draw();
-}
-
-// ====================
-// 回答処理
-// ====================
-function answer(choice) {
-  const data = load();
-
-  const correct = choice === currentQuiz.back;
-
-  document.getElementById("result").textContent =
-    correct ? "正解！" : "不正解";
-
-  document.getElementById("explanation").textContent = currentQuiz.note;
-
-  const word = data.words.find(w => w.id === currentQuiz.id);
-
-  if (correct) word.stats.correct++;
-  else word.stats.wrong++;
-
-  // 🔥 学習扱い
-  updateLastStudied(data);
-
-  save(data);
-}
-
-// ====================
-// 最近勉強更新
-// ====================
-function updateLastStudied(data) {
-  const folder = data.folders.find(f => f.id === currentFolderId);
-  if (folder) {
-    folder.lastStudied = Date.now();
-  }
-}
-
-// ====================
-// シャッフル
-// ====================
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
 }
