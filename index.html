@@ -8,45 +8,8 @@
 <body>
 
 <h1>単語帳</h1>
-
-<!-- フォルダ選択 -->
-<div id="folderScreen">
-  <h2>フォルダ選択</h2>
-  <div id="folderList"></div>
-
-  <input id="folderNameInput" placeholder="新規フォルダ">
-  <button id="addFolderBtn">追加</button>
-</div>
-
-<!-- 登録 -->
-<div id="formScreen" style="display:none;">
-  <h2>単語登録</h2>
-  <input id="wordInput" placeholder="単語">
-  <input id="answerInput" placeholder="意味">
-  <input id="explanationInput" placeholder="説明">
-  <button id="addBtn">登録</button>
-
-  <button id="backToFolders">戻る</button>
-</div>
-
-<!-- クイズ -->
-<div id="quizScreen" style="display:none;">
-  <div id="question"></div>
-  <div id="choices"></div>
-
-  <div id="result"></div>
-  <div id="explanation"></div>
-
-  <div id="tagStatus"></div>
-  <div id="tagButtons"></div>
-
-  <button id="nextBtn">次へ</button>
-  <button id="skipBtn">スキップ</button>
-
-  <button id="backBtn">フォルダへ戻る</button>
-</div>
+<div id="app"></div>
 
 <script type="module" src="./main.js"></script>
-
 </body>
 </html>
