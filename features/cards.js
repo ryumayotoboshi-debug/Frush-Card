@@ -7,7 +7,15 @@ export function getWords(folderId){
 
 export function addWord({front,back,note,folderId}){
   const data=load();
-  data.words.push({id:crypto.randomUUID(),front,back,note,folderId,tags:[],stats:{correct:0,wrong:0}});
+  data.words.push({
+    id:crypto.randomUUID(),
+    front,
+    back,
+    note,
+    folderId,
+    tags:[],
+    stats:{correct:0,wrong:0}
+  });
   const f = data.folders.find(f=>f.id===folderId);
   if(f) f.lastStudied = Date.now();
   save(data);
@@ -19,9 +27,18 @@ export function deleteWord(id){
   save(data);
 }
 
+// ★トグル仕様に変更
 export function updateWordTags(wordId, tag){
   const data=load();
   const w = data.words.find(w=>w.id===wordId);
-  if(w&&!w.tags.includes(tag)) w.tags.push(tag);
+  if(w){
+    if(w.tags.includes(tag)){
+      // 既にある → 削除
+      w.tags = w.tags.filter(t=>t!==tag);
+    }else{
+      // 無い → 追加
+      w.tags.push(tag);
+    }
+  }
   save(data);
 }
