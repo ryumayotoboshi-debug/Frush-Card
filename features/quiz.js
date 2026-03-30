@@ -51,10 +51,12 @@ export function generateQuiz() {
   const shuffledChoices = choices.sort(() => Math.random() - 0.5);
 
   currentQuiz = {
-    question,
-    correctAnswer,
-    choices
-  };
+  question,
+  correctAnswer,
+  choices,
+  description: correctCard.description,
+  cardId: correctCard.id
+};
 
   return currentQuiz;
 }
