@@ -15,28 +15,31 @@ export function renderQuiz() {
     return;
   }
 
-  // 問題文
   const question = document.createElement("h2");
   question.textContent = quiz.question;
   container.appendChild(question);
 
-  // 選択肢
+  const resultText = document.createElement("p");
+  container.appendChild(resultText);
+
   quiz.choices.forEach(choice => {
     const btn = document.createElement("button");
     btn.textContent = choice;
 
     btn.addEventListener("click", () => {
-      const result = checkAnswer(choice);
+      const isCorrect = checkAnswer(choice);
 
-      alert(result ? "正解！" : "不正解");
+      resultText.textContent = isCorrect ? "正解！" : "不正解";
 
-      renderQuiz(); // 次の問題へ
+      // 少し待って次へ
+      setTimeout(() => {
+        renderQuiz();
+      }, 500);
     });
 
     container.appendChild(btn);
   });
 
-  // スキップボタン
   const skipBtn = document.createElement("button");
   skipBtn.textContent = "スキップ";
 
