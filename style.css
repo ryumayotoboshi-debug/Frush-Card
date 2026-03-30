@@ -24,3 +24,8 @@ button {
   color: #0ff;
   border: 1px solid #0ff;
 }
+
+#quiz p {
+  font-weight: bold;
+  margin: 10px 0;
+}
