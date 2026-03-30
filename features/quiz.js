@@ -5,31 +5,54 @@ import { saveCards } from "../data/storage.js";
 
 let currentQuiz = null;
 let currentCard = null;
+let mode = "wordToMeaning"; // ←追加
+
+export function setMode(newMode) {
+  mode = newMode;
+}
+
+export function getMode() {
+  return mode;
+}
 
 export function generateQuiz() {
   const cards = shuffleCards();
-
   if (cards.length < 4) return null;
 
   const correctCard = cards[0];
   currentCard = correctCard;
 
-  const choices = [correctCard.meaning];
+  let question, correctAnswer;
+
+  if (mode === "wordToMeaning") {
+    question = correctCard.word;
+    correctAnswer = correctCard.meaning;
+  } else {
+    question = correctCard.meaning;
+    correctAnswer = correctCard.word;
+  }
+
+  const choices = [correctAnswer];
 
   for (let i = 1; i < cards.length; i++) {
     if (choices.length >= 4) break;
 
-    if (!choices.includes(cards[i].meaning)) {
-      choices.push(cards[i].meaning);
+    const value =
+      mode === "wordToMeaning"
+        ? cards[i].meaning
+        : cards[i].word;
+
+    if (!choices.includes(value)) {
+      choices.push(value);
     }
   }
 
   const shuffledChoices = choices.sort(() => Math.random() - 0.5);
 
   currentQuiz = {
-    question: correctCard.word,
-    correctAnswer: correctCard.meaning,
-    choices: shuffledChoices
+    question,
+    correctAnswer,
+    choices
   };
 
   return currentQuiz;
@@ -46,9 +69,7 @@ export function checkAnswer(answer) {
     currentCard.wrong++;
   }
 
-  // 保存
   saveCards(getCards());
-
   return isCorrect;
 }
 
