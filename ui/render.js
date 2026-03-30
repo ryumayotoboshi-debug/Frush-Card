@@ -34,8 +34,8 @@ export function drawFolderScreen(parentId = null) {
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
-    ${parentId !== null ? '<button id="backBtn" class="back-btn">←</button>' : ''}
     <div class="panel">
+      ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
       <div id="list"></div>
       <input id="newName" placeholder="新しいフォルダ">
       <button id="addBtn" class="cyber-btn">追加</button>
@@ -121,8 +121,8 @@ export function drawWordScreen(subFolderId, parentFolderId){
   const words = getWords(subFolderId);
 
   app.innerHTML=`
-    <button id="backBtn" class="back-btn">←</button>
     <div class="panel">
+      <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
       <div id="wordList"></div>
       <input id="wordInput" placeholder="単語">
       <input id="answerInput" placeholder="意味">
@@ -158,7 +158,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
-      b.className="tag-btn";
+      b.className="mini-btn cyber-btn"; // ★ サイバー化
 
       if(w.tags.includes(tag)){
         b.classList.add("active-tag");
