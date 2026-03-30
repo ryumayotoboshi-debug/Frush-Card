@@ -2,45 +2,32 @@
 
 import { load, save } from "../data/storage.js";
 
-/**
- * フォルダ追加
- */
-export function addFolder(name, parentId = null) {
+export function getFolders(parentId) {
+  const data = load();
+  return data.folders.filter(f => f.parentId === parentId);
+}
+
+export function addFolder(name, parentId) {
   const data = load();
 
-  const newFolder = {
-    id: crypto.randomUUID(),
+  data.folders.push({
+    id: Date.now().toString(),
     name,
     parentId,
-    lastStudiedAt: 0 // 初期値
-  };
-
-  data.folders.push(newFolder);
+    lastStudied: 0
+  });
 
   save(data);
 }
 
-/**
- * フォルダ一覧取得（並び替え付き）
- */
-export function getFolders(parentId = null) {
-  const data = load();
-
-  return data.folders
-    .filter(f => f.parentId === parentId)
-    .sort((a, b) => (b.lastStudiedAt || 0) - (a.lastStudiedAt || 0));
-}
-
-/**
- * 🔥 学習更新
- */
-export function updateFolderStudyTime(folderId) {
+// ⭐ 追加：勉強した扱い
+export function touchFolder(folderId) {
   const data = load();
 
   const folder = data.folders.find(f => f.id === folderId);
-
   if (folder) {
-    folder.lastStudiedAt = Date.now();
-    save(data);
+    folder.lastStudied = Date.now();
   }
+
+  save(data);
 }
