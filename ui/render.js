@@ -1,13 +1,12 @@
 "use strict";
 
-import { getFolders, addFolder } from "../features/folders.js";
+import { getFolders } from "../features/folders.js";
+import { addFolder } from "../features/folders.js";
+import { load } from "../data/storage.js";
 
 let currentFolderId = null;
 
 export function draw() {
-  console.log("draw() 実行");
-
-  // 🔥 修正ポイント
   const container = document.getElementById("folderList");
 
   if (!container) {
@@ -16,6 +15,28 @@ export function draw() {
   }
 
   container.innerHTML = "";
+
+  const data = load();
+
+  // 🧠 現在のフォルダ情報取得
+  const currentFolder = data.folders.find(f => f.id === currentFolderId);
+
+  // 🔙 戻るボタン（ルート以外で表示）
+  if (currentFolderId !== null) {
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "← 戻る";
+
+    backBtn.style.marginBottom = "10px";
+    backBtn.style.padding = "10px";
+    backBtn.style.width = "100%";
+
+    backBtn.onclick = () => {
+      currentFolderId = currentFolder?.parentId || null;
+      draw();
+    };
+
+    container.appendChild(backBtn);
+  }
 
   const folders = getFolders(currentFolderId);
 
@@ -32,6 +53,8 @@ export function draw() {
     item.style.borderRadius = "6px";
     item.style.border = "1px solid #00ffcc";
 
+    item.style.cursor = "pointer";
+
     item.onclick = () => {
       currentFolderId = folder.id;
       draw();
@@ -40,7 +63,7 @@ export function draw() {
     container.appendChild(item);
   });
 
-  // 🆕 入力欄（既存HTMLを使う）
+  // 🆕 入力欄
   const input = document.getElementById("folderNameInput");
   const btn = document.getElementById("addFolderBtn");
 
