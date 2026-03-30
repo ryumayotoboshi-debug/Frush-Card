@@ -1,26 +1,37 @@
-const KEY = "cards";
+const CARD_KEY = "cards";
+const FOLDER_KEY = "folders";
 
-export function getAllCards() {
-  return JSON.parse(localStorage.getItem(KEY)) || [];
+export function getCards() {
+  return JSON.parse(localStorage.getItem(CARD_KEY)) || [];
 }
 
 export function saveCards(cards) {
-  localStorage.setItem(KEY, JSON.stringify(cards));
+  localStorage.setItem(CARD_KEY, JSON.stringify(cards));
 }
 
 export function addCard(card) {
-  const cards = getAllCards();
+  const cards = getCards();
   cards.push(card);
   saveCards(cards);
 }
 
-// ★ 追加：カード更新（タグ保存用）
-export function updateCard(updatedCard) {
-  const cards = getAllCards();
-
-  const newCards = cards.map(card =>
-    card.word === updatedCard.word ? updatedCard : card
+export function updateCard(updated) {
+  const cards = getCards().map(c =>
+    c.word === updated.word ? updated : c
   );
+  saveCards(cards);
+}
 
-  saveCards(newCards);
+export function getFolders() {
+  return JSON.parse(localStorage.getItem(FOLDER_KEY)) || [];
+}
+
+export function saveFolders(folders) {
+  localStorage.setItem(FOLDER_KEY, JSON.stringify(folders));
+}
+
+export function addFolder(folder) {
+  const folders = getFolders();
+  folders.push(folder);
+  saveFolders(folders);
 }
