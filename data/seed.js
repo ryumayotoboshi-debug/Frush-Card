@@ -1,38 +1,38 @@
-"use strict";
+import { getAllCards, saveCards } from "./storage.js";
 
-import { createCard } from "./models.js";
+export function seed() {
+  if (getAllCards().length > 0) return;
 
-export function getSeedCards() {
-  return [
-    createCard({
-      id: crypto.randomUUID(),
+  const sample = [
+    {
       word: "apple",
-      meaning: "りんご",
-      description: "果物の一種"
-    }),
-    createCard({
-      id: crypto.randomUUID(),
-      word: "book",
-      meaning: "本",
-      description: "読むもの"
-    }),
-    createCard({
-      id: crypto.randomUUID(),
-      word: "run",
-      meaning: "走る",
-      description: "移動動作"
-    }),
-    createCard({
-      id: crypto.randomUUID(),
+      answer: "りんご",
+      choices: ["りんご", "みかん", "ぶどう", "バナナ"],
+      explanation: "果物",
+      tags: []
+    },
+    {
+      word: "dog",
+      answer: "犬",
+      choices: ["猫", "犬", "鳥", "魚"],
+      explanation: "動物",
+      tags: []
+    },
+    {
       word: "blue",
-      meaning: "青",
-      description: "色"
-    }),
-    createCard({
-      id: crypto.randomUUID(),
-      word: "eat",
-      meaning: "食べる",
-      description: "食事動作"
-    })
+      answer: "青",
+      choices: ["赤", "青", "緑", "黄"],
+      explanation: "色",
+      tags: []
+    },
+    {
+      word: "car",
+      answer: "車",
+      choices: ["電車", "車", "飛行機", "船"],
+      explanation: "乗り物",
+      tags: []
+    }
   ];
+
+  saveCards(sample);
 }
