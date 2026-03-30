@@ -7,24 +7,39 @@ body {
   color: #0ff;
 }
 
-/* タイトル */
+/* タイトル（白＋ネオン） */
 #mainTitle {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow:
+    0 0 5px #0ff,
+    0 0 10px #0ff,
+    0 0 20px #0ff;
+}
+
+/* 戻るボタン固定 */
+.back-btn {
+  position: fixed;
+  top: 60px;
+  left: 10px;
+  z-index: 1000;
+  background: transparent;
   color: #0ff;
-  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  border: 1px solid #0ff;
+  padding: 6px 10px;
 }
 
 /* パネル */
 .panel {
-  padding: 10px;
+  padding-top: 40px;
 }
 
-/* ネオン枠 */
-.neon-box {
-  border: 1px solid #0ff;
-  box-shadow: 0 0 8px #0ff;
-  padding: 8px;
+/* フォルダ（枠なし） */
+.folder-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
 }
 
@@ -42,17 +57,38 @@ body {
   box-shadow: 0 0 10px #0ff;
 }
 
+/* タグボタン（追加） */
+.tag-btn {
+  background: transparent;
+  color: #ff00ff;
+  border: 1px solid #ff00ff;
+  margin: 2px;
+}
+
+.tag-btn:hover {
+  background: #ff00ff;
+  color: #000;
+  box-shadow: 0 0 8px #ff00ff;
+}
+
+.active-tag {
+  background: #ff00ff;
+  color: #000;
+  box-shadow: 0 0 10px #ff00ff;
+}
+
+/* ネオン枠 */
+.neon-box {
+  border: 1px solid #0ff;
+  box-shadow: 0 0 8px #0ff;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
 /* 小ボタン */
 .mini-btn {
   font-size: 12px;
   padding: 4px 6px;
-}
-
-/* フォルダ */
-.folder-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .folder-actions {
@@ -60,31 +96,22 @@ body {
   gap: 4px;
 }
 
-/* 単語 */
 .word-item {
   margin-bottom: 10px;
 }
 
-/* タグ */
 .tag-display {
   font-size: 12px;
 }
 
-/* タグ選択 */
-.active-tag {
-  background: #ff00ff;
-  color: #fff;
-  box-shadow: 0 0 8px #ff00ff;
-}
-
-/* 入力欄 */
+/* 入力 */
 input {
   background: #000;
   color: #0ff;
   border: 1px solid #0ff;
 }
 
-/* スクロール制御 */
+/* スクロール */
 body.no-scroll {
   overflow: hidden;
 }
