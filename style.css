@@ -237,3 +237,36 @@ body {
   width: 80%;
   z-index: 1000;
 }
+
+/* ================= 安全な固定ボタン ================= */
+
+/* 追加ボタン（右上） */
+.floating-add {
+  position: fixed;
+  top: 110px;
+  right: 12px;
+  z-index: 500; /* ←下げる */
+}
+
+/* クイズボタン（下） */
+.floating-quiz {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.7;
+  width: 85%;
+  z-index: 500; /* ←下げる */
+}
+
+/* ================= 被り防止 ================= */
+
+/* リストの下に余白を作る（超重要） */
+#wordList {
+  padding-bottom: 100px;
+}
+
+/* フォルダ一覧も余白 */
+#list {
+  padding-bottom: 80px;
+}
