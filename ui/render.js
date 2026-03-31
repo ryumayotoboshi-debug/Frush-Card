@@ -13,186 +13,200 @@ function setTitle(text){
   title.textContent = text;
 }
 
-// ---------------- フォルダ画面 ----------------
-export function drawFolderScreen(parentId = null) {
+// ================= モーダル共通 =================
+function createModal(innerHTML){
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+
+  const box = document.createElement("div");
+  box.className = "modal-box";
+  box.innerHTML = innerHTML;
+
+  overlay.appendChild(box);
+
+  overlay.onclick = ()=> overlay.remove();
+  box.onclick = e=> e.stopPropagation();
+
+  document.body.appendChild(overlay);
+}
+
+// フォルダ追加モーダル
+function showFolderModal(parentId){
+  createModal(`
+    <h2>フォルダ追加</h2>
+    <input id="modalInput" placeholder="フォルダ名">
+    <button id="okBtn" class="cyber-btn big-btn">確定</button>
+    <button id="cancelBtn" class="cyber-btn big-btn">キャンセル</button>
+  `);
+
+  document.getElementById("okBtn").onclick = ()=>{
+    const name = document.getElementById("modalInput").value.trim();
+    if(!name) return alert("入力してください");
+    addFolder(name,parentId);
+    document.querySelector(".modal-overlay").remove();
+    drawFolderScreen(parentId);
+  };
+
+  document.getElementById("cancelBtn").onclick = ()=>{
+    document.querySelector(".modal-overlay").remove();
+  };
+}
+
+// 単語追加モーダル
+function showWordModal(folderId, parentFolderId){
+  createModal(`
+    <h2>単語追加</h2>
+    <input id="w1" placeholder="単語">
+    <input id="w2" placeholder="意味">
+    <input id="w3" placeholder="説明">
+    <button id="okBtn" class="cyber-btn big-btn">確定</button>
+    <button id="cancelBtn" class="cyber-btn big-btn">キャンセル</button>
+  `);
+
+  document.getElementById("okBtn").onclick = ()=>{
+    const front = document.getElementById("w1").value.trim();
+    const back = document.getElementById("w2").value.trim();
+    const note = document.getElementById("w3").value.trim();
+    if(!front || !back) return alert("単語と意味は必須");
+    addWord({front, back, note, folderId});
+    document.querySelector(".modal-overlay").remove();
+    drawWordScreen(folderId, parentFolderId);
+  };
+
+  document.getElementById("cancelBtn").onclick = ()=>{
+    document.querySelector(".modal-overlay").remove();
+  };
+}
+
+// ================= フォルダ画面 =================
+export function drawFolderScreen(parentId=null){
   document.body.className = "no-scroll";
-
-  const app = document.getElementById("app");
-  if (!app) return alert("appが見つかりません");
-
   currentFolderId = parentId;
+  const app = document.getElementById("app");
+  if(!app) return;
 
-  if(parentId === null){
-    setTitle("単語帳");
-  }else{
-    setTitle("フォルダ一覧");
-  }
+  setTitle(parentId===null?"単語帳":"フォルダ一覧");
 
-  const folders = getFolderTree(parentId)
-    .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
+  const folders = getFolderTree(parentId).sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
     <div class="panel">
-      ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
+      ${parentId!==null?'<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>':''}
       <div id="list"></div>
-      <input id="newName" placeholder="新しいフォルダ">
-      <button id="addBtn" class="cyber-btn">追加</button>
+      <button id="addBtn" class="cyber-btn big-btn">＋ 追加</button>
     </div>
   `;
 
   const list = app.querySelector("#list");
-
   folders.forEach(f=>{
-    const div = document.createElement("div");
-    div.className = "folder-item neon-box";
+    const div=document.createElement("div");
+    div.className="folder-item neon-box";
+    div.onclick = ()=> parentId===null? drawFolderScreen(f.id) : drawWordScreen(f.id,parentId);
 
-    div.onclick = ()=>{
-      if(parentId === null){
-        drawFolderScreen(f.id);
-      } else {
-        drawWordScreen(f.id, parentId);
-      }
-    };
+    const name = document.createElement("div");
+    name.textContent=f.name;
+    name.className="folder-name";
 
-    const nameBtn = document.createElement("button");
-    nameBtn.textContent = f.name;
-    nameBtn.className = "folder-name";
+    const actions=document.createElement("div");
+    actions.className="folder-actions";
 
-    const actions = document.createElement("div");
-    actions.className = "folder-actions";
+    const renameBtn=document.createElement("button");
+    renameBtn.textContent="✎";
+    renameBtn.className="mini-btn cyber-btn";
+    renameBtn.onclick = e=> { e.stopPropagation(); const newName=prompt("新しい名前",f.name); if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }};
 
-    if(parentId !== null){
-      const addSubBtn = document.createElement("button");
-      addSubBtn.textContent = "+";
-      addSubBtn.className = "mini-btn cyber-btn";
-      addSubBtn.onclick = (e)=>{
-        e.stopPropagation();
-        const subName = prompt("サブフォルダ名");
-        if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
-      };
-      actions.appendChild(addSubBtn);
-    }
-
-    const renameBtn = document.createElement("button");
-    renameBtn.textContent = "✎";
-    renameBtn.className = "mini-btn cyber-btn";
-    renameBtn.onclick = (e)=>{
-      e.stopPropagation();
-      const newName = prompt("新しい名前", f.name);
-      if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }
-    };
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑";
-    deleteBtn.className = "mini-btn cyber-btn";
-    deleteBtn.onclick = (e)=>{
-      e.stopPropagation();
-      if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
-    };
+    const deleteBtn=document.createElement("button");
+    deleteBtn.textContent="🗑";
+    deleteBtn.className="mini-btn cyber-btn";
+    deleteBtn.onclick = e=> { e.stopPropagation(); if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }};
 
     actions.appendChild(renameBtn);
     actions.appendChild(deleteBtn);
 
-    div.appendChild(nameBtn);
+    div.appendChild(name);
     div.appendChild(actions);
     list.appendChild(div);
   });
 
-  app.querySelector("#addBtn")?.addEventListener("click",()=>{
-    const name = app.querySelector("#newName").value.trim();
-    if(!name){ alert("名前を入力してください"); return; }
-    addFolder(name,parentId);
-    app.querySelector("#newName").value="";
-    drawFolderScreen(parentId);
-  });
-
-  app.querySelector("#backBtn")?.addEventListener("click",()=>{
-    drawFolderScreen(null);
-  });
+  app.querySelector("#addBtn").onclick = ()=> showFolderModal(parentId);
+  app.querySelector("#backBtn")?.onclick = ()=> drawFolderScreen(null);
 }
 
-// ---------------- 単語画面 ----------------
-export function drawWordScreen(subFolderId, parentFolderId){
-  document.body.className = "word-screen";
+// ================= 単語画面 =================
+export function drawWordScreen(subFolderId,parentFolderId){
+  document.body.className="word-screen";
+  currentFolderId=subFolderId;
+
+  const app=document.getElementById("app");
+  const words=getWords(subFolderId);
 
   setTitle("単語一覧");
-
-  currentFolderId = subFolderId;
-  const app = document.getElementById("app");
-  const words = getWords(subFolderId);
 
   app.innerHTML=`
     <div class="panel">
       <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
       <div id="wordList"></div>
-      <input id="wordInput" placeholder="単語">
-      <input id="answerInput" placeholder="意味">
-      <input id="explanationInput" placeholder="説明">
-      <button id="addWordBtn" class="cyber-btn">追加</button>
-      <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
+      <button id="addWordBtn" class="cyber-btn big-btn floating-add">＋ 単語追加</button>
+      <button id="startQuizBtn" class="cyber-btn big-btn floating-quiz">クイズ開始</button>
     </div>
   `;
 
   const list = app.querySelector("#wordList");
-
   words.forEach(w=>{
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    const text = document.createElement("div");
-    text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
-    div.appendChild(text);
+    // 単語
+    const frontDiv=document.createElement("div");
+    frontDiv.textContent=w.front;
+    frontDiv.className="word-front";
+    div.appendChild(frontDiv);
 
-    // ★タグ表示（非表示にするだけ）
-    const tagDisplay = document.createElement("div");
-    tagDisplay.className="tag-display";
-    tagDisplay.textContent = "";
-    div.appendChild(tagDisplay);
+    // 下線
+    const hr=document.createElement("hr");
+    div.appendChild(hr);
 
-    // ★タグ（右上）
+    // 意味
+    const backDiv=document.createElement("div");
+    backDiv.textContent=w.back;
+    backDiv.className="word-back";
+    div.appendChild(backDiv);
+
+    // 説明文
+    const noteDiv=document.createElement("div");
+    noteDiv.textContent=w.note||"";
+    noteDiv.className="word-note";
+    div.appendChild(noteDiv);
+
+    // タグ
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
-
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
       b.className="mini-btn cyber-btn";
-
-      if(w.tags.includes(tag)){
-        b.classList.add("active-tag");
-      }
-
-      b.onclick=()=>{
-        updateWordTags(w.id,tag);
-        drawWordScreen(subFolderId, parentFolderId);
-      };
-
+      if(w.tags.includes(tag)) b.classList.add("active-tag");
+      b.onclick=()=> { updateWordTags(w.id,tag); drawWordScreen(subFolderId,parentFolderId); };
       tagDiv.appendChild(b);
     });
-
     div.appendChild(tagDiv);
 
-    // ★削除ボタン（右下）
+    // 削除ボタン
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
     deleteBtn.className="mini-btn cyber-btn delete-btn";
-    deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
-
+    deleteBtn.onclick=()=>{
+      if(confirm("削除しますか？")){
+        deleteWord(w.id);
+        drawWordScreen(subFolderId,parentFolderId);
+      }
+    };
     div.appendChild(deleteBtn);
 
     list.appendChild(div);
   });
 
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
-
-  app.querySelector("#addWordBtn").onclick = ()=>{
-    const front = app.querySelector("#wordInput").value.trim();
-    const back = app.querySelector("#answerInput").value.trim();
-    const note = app.querySelector("#explanationInput").value.trim();
-    if(!front||!back){ alert("単語と意味は必須"); return; }
-    addWord({front,back,note,folderId:subFolderId});
-    drawWordScreen(subFolderId, parentFolderId);
-  };
-
+  app.querySelector("#addWordBtn").onclick = ()=> showWordModal(subFolderId,parentFolderId);
   app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
 }
