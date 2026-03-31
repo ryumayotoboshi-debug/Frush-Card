@@ -139,3 +139,22 @@ body.word-screen {
   bottom: 5px;
   right: 5px;
 }
+
+.word-item {
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.tag-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 4px;
+}
+
+.delete-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
