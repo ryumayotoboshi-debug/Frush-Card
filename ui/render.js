@@ -1,8 +1,8 @@
 "use strict";
 
-import { getFolders, addFolder, deleteFolder, renameFolder } from "./data/folders.js";
-import { getWords, addWord, deleteWord } from "./data/words.js";
-import { openModal } from "./ui/modal.js";
+import { getFolders, addFolder, deleteFolder, renameFolder } from "../features/folders.js";
+import { getWords, addWord, deleteWord } from "../features/words.js";
+import { openModal } from "./modal.js";
 
 const app = document.getElementById("app");
 
