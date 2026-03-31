@@ -110,7 +110,8 @@ input {
 
 /* スクロール制御 */
 body.no-scroll {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* ← これが重要 */
 }
 
 body.word-screen {
