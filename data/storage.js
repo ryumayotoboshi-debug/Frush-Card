@@ -2,14 +2,18 @@
 const KEY="wordAppData";
 
 export function load(){
-  let data=JSON.parse(localStorage.getItem(KEY));
-  if(!data || !Array.isArray(data.folders)||!Array.isArray(data.words)){
-    const initial=createInitialData(); save(initial); return initial;
+  let data = JSON.parse(localStorage.getItem(KEY));
+  if(!data || !Array.isArray(data.folders) || !Array.isArray(data.words)){
+    const initial = createInitialData();
+    save(initial);
+    return initial;
   }
   return data;
 }
 
-export function save(data){ localStorage.setItem(KEY,JSON.stringify(data)); }
+export function save(data){
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
 
 function createInitialData(){
   const rootId = crypto.randomUUID();
