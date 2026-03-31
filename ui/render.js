@@ -13,7 +13,7 @@ function setTitle(text){
   title.textContent = text;
 }
 
-/* ================= モーダル ================= */
+/* ================= モーダル共通 ================= */
 
 function createModal(innerHTML){
   const overlay = document.createElement("div");
@@ -31,11 +31,12 @@ function createModal(innerHTML){
   document.body.appendChild(overlay);
 }
 
+/* フォルダ追加 */
 function showFolderModal(parentId){
   createModal(`
     <h2>フォルダ追加</h2>
     <input id="modalInput" placeholder="フォルダ名">
-    <button id="okBtn" class="cyber-btn big-btn">確定</button>
+    <button id="okBtn" class="cyber-btn">確定</button>
     <button id="cancelBtn" class="cyber-btn">キャンセル</button>
   `);
 
@@ -52,13 +53,14 @@ function showFolderModal(parentId){
   };
 }
 
-function showWordModal(folderId,parentFolderId){
+/* 単語追加 */
+function showWordModal(folderId, parentFolderId){
   createModal(`
     <h2>単語追加</h2>
     <input id="w1" placeholder="単語">
     <input id="w2" placeholder="意味">
     <input id="w3" placeholder="説明">
-    <button id="okBtn" class="cyber-btn big-btn">確定</button>
+    <button id="okBtn" class="cyber-btn">確定</button>
     <button id="cancelBtn" class="cyber-btn">キャンセル</button>
   `);
 
@@ -95,8 +97,8 @@ export function drawFolderScreen(parentId = null) {
   app.innerHTML = `
     <div class="panel">
       ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
-      <button id="addBtn" class="cyber-btn big-btn floating-add">＋</button>
       <div id="list"></div>
+      <button id="addBtn" class="cyber-btn">＋ 追加</button>
     </div>
   `;
 
@@ -148,7 +150,9 @@ export function drawFolderScreen(parentId = null) {
 
   document.getElementById("addBtn").onclick = ()=> showFolderModal(parentId);
 
-  document.getElementById("backBtn")?.onclick = ()=> drawFolderScreen(null);
+  document.getElementById("backBtn")?.addEventListener("click",()=>{
+    drawFolderScreen(null);
+  });
 }
 
 /* ================= 単語画面 ================= */
@@ -164,12 +168,9 @@ export function drawWordScreen(subFolderId,parentFolderId){
   app.innerHTML=`
     <div class="panel">
       <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
-
-      <button id="addWordBtn" class="cyber-btn big-btn floating-add">＋</button>
-
       <div id="wordList"></div>
-
-      <button id="startQuizBtn" class="cyber-btn big-btn floating-quiz">クイズ開始</button>
+      <button id="addWordBtn" class="cyber-btn">＋ 単語追加</button>
+      <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
     </div>
   `;
 
@@ -221,10 +222,8 @@ export function drawWordScreen(subFolderId,parentFolderId){
     deleteBtn.textContent="🗑";
     deleteBtn.className="mini-btn cyber-btn delete-btn";
     deleteBtn.onclick=()=>{
-      if(confirm("削除しますか？")){
-        deleteWord(w.id);
-        drawWordScreen(subFolderId,parentFolderId);
-      }
+      deleteWord(w.id);
+      drawWordScreen(subFolderId,parentFolderId);
     };
 
     div.appendChild(deleteBtn);
@@ -233,6 +232,8 @@ export function drawWordScreen(subFolderId,parentFolderId){
   });
 
   document.getElementById("backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
+
   document.getElementById("addWordBtn").onclick = ()=> showWordModal(subFolderId,parentFolderId);
+
   document.getElementById("startQuizBtn").onclick = ()=> startQuiz(subFolderId);
 }
