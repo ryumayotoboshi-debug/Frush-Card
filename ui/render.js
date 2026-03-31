@@ -24,11 +24,7 @@ export function drawFolderScreen(parentId = null) {
 
   currentFolderId = parentId;
 
-  if(parentId === null){
-    setTitle("単語帳");
-  }else{
-    setTitle("フォルダ一覧");
-  }
+  setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
 
   const folders = getFolderTree(parentId)
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
@@ -48,7 +44,6 @@ export function drawFolderScreen(parentId = null) {
     const div = document.createElement("div");
     div.className = "folder-item neon-box";
 
-    // ★ フォルダ全体をクリック対象に
     div.onclick = ()=>{
       if(parentId === null){
         drawFolderScreen(f.id);
@@ -59,7 +54,7 @@ export function drawFolderScreen(parentId = null) {
 
     const nameBtn = document.createElement("button");
     nameBtn.textContent = f.name;
-    nameBtn.className = "folder-name"; // ★ ボタン役割削除
+    nameBtn.className = "folder-name";
 
     const actions = document.createElement("div");
     actions.className = "folder-actions";
@@ -69,7 +64,7 @@ export function drawFolderScreen(parentId = null) {
       addSubBtn.textContent = "+";
       addSubBtn.className = "mini-btn cyber-btn";
       addSubBtn.onclick = (e)=>{
-        e.stopPropagation(); // ★ 親クリック防止
+        e.stopPropagation();
         const subName = prompt("サブフォルダ名");
         if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
       };
@@ -142,22 +137,30 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    const text = document.createElement("div");
-    text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
-    div.appendChild(text);
+    // 単語
+    const front = document.createElement("div");
+    front.className = "word-front";
+    front.textContent = w.front;
 
-    const tagDisplay = document.createElement("div");
-    tagDisplay.className="tag-display";
-    tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
-    div.appendChild(tagDisplay);
+    // 意味
+    const back = document.createElement("div");
+    back.className = "word-back";
+    back.textContent = w.back;
 
+    // 説明
+    const note = document.createElement("div");
+    note.className = "word-note";
+    note.textContent = w.note || "未設定";
+
+    // ゴミ箱（右下）
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
-    deleteBtn.className="mini-btn cyber-btn";
+    deleteBtn.className="mini-btn cyber-btn delete-btn";
     deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
-    div.appendChild(deleteBtn);
 
+    // タグ（右上）
     const tagDiv=document.createElement("div");
+    tagDiv.className="tag-group";
 
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
@@ -168,23 +171,21 @@ export function drawWordScreen(subFolderId, parentFolderId){
         b.classList.add("active-tag");
       }
 
-      b.onclick=()=>{
+      b.onclick=(e)=>{
+        e.stopPropagation();
         updateWordTags(w.id,tag);
-
-        // ★ 即時UI反映
-        if(b.classList.contains("active-tag")){
-          b.classList.remove("active-tag");
-        }else{
-          b.classList.add("active-tag");
-        }
-
         drawWordScreen(subFolderId, parentFolderId);
       };
 
       tagDiv.appendChild(b);
     });
 
+    div.appendChild(front);
+    div.appendChild(back);
+    div.appendChild(note);
     div.appendChild(tagDiv);
+    div.appendChild(deleteBtn);
+
     list.appendChild(div);
   });
 
