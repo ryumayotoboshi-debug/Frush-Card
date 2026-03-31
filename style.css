@@ -1,114 +1,24 @@
-body {
-  font-family: 'Orbitron', sans-serif;
-  padding: 10px;
-  max-width: 480px;
-  margin: 0 auto;
-  background: radial-gradient(circle at top, #0a0a0a, #000);
-  color: #0ff;
-}
-
-/* タイトル：白＋シアンネオン */
-#mainTitle {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #fff;
-  text-shadow:
-    0 0 5px #0ff,
-    0 0 10px #0ff,
-    0 0 20px #0ff;
-}
-
-/* パネル */
-.panel {
-  padding-top: 50px; /* 戻るボタン分余白 */
-}
-
-/* 戻るボタン固定 */
+/* 戻るボタン位置を下げる */
 .back-btn {
   position: fixed;
-  top: 60px;
+  top: 90px; /* ★変更 */
   left: 10px;
   z-index: 1000;
 }
 
-/* ネオン枠 */
-.neon-box {
-  border: 1px solid #0ff;
-  box-shadow: 0 0 6px #0ff;
-  padding: 8px;
-  margin-bottom: 8px;
-}
-
-/* ボタン */
-.cyber-btn {
-  background: transparent;
-  color: #0ff;
-  border: 1px solid #0ff;
-  transition: 0.2s;
-}
-
-.cyber-btn:hover {
-  background: #0ff;
-  color: #000;
-  box-shadow: 0 0 10px #0ff;
-}
-
-/* 小ボタン */
-.mini-btn {
-  font-size: 12px;
-  padding: 4px 6px;
-}
-
-/* フォルダ */
+/* フォルダクリック可能に */
 .folder-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer; /* ★追加 */
 }
 
-.folder-actions {
-  display: flex;
-  gap: 4px;
-}
-
-/* 単語 */
-.word-item {
-  margin-bottom: 10px;
-}
-
-/* タグ */
-.tag-display {
-  font-size: 12px;
-}
-
-/* タグ選択 */
-.active-tag {
-  background: #ff00ff;
-  color: #fff;
-  box-shadow: 0 0 8px #ff00ff;
-}
-
-/* 入力欄 */
-input {
-  background: #000;
-  color: #0ff;
-  border: 1px solid #0ff;
-}
-
-/* スクロール制御 */
-body.no-scroll {
-  overflow: hidden;
-}
-
-body.word-screen {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-/* ★ 追加：フォルダ名の枠だけ消す */
+/* フォルダ名を大きく */
 .folder-name {
   border: none;
   box-shadow: none;
   background: transparent;
   color: #0ff;
+  font-size: 18px; /* ★追加 */
 }
