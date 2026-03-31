@@ -139,17 +139,29 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    const text = document.createElement("div");
-    text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
-    div.appendChild(text);
+    // ★単語
+    const front = document.createElement("div");
+    front.className = "word-front";
+    front.textContent = w.front;
 
-    // ★タグ表示（非表示にするだけ）
+    // ★意味
+    const back = document.createElement("div");
+    back.className = "word-back";
+    back.textContent = w.back;
+
+    // ★説明
+    const note = document.createElement("div");
+    note.className = "word-note";
+    note.textContent = w.note || "";
+
+    div.appendChild(front);
+    div.appendChild(back);
+    div.appendChild(note);
+
     const tagDisplay = document.createElement("div");
     tagDisplay.className="tag-display";
-    tagDisplay.textContent = "";
     div.appendChild(tagDisplay);
 
-    // ★タグ（右上）
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
 
@@ -172,7 +184,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
     div.appendChild(tagDiv);
 
-    // ★削除ボタン（右下）
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
     deleteBtn.className="mini-btn cyber-btn delete-btn";
