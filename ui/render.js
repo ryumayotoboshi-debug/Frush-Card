@@ -31,6 +31,24 @@ function createModal(innerHTML){
   document.body.appendChild(overlay);
 }
 
+/* 削除確認モーダル */
+function confirmModal(message, onOk){
+  createModal(`
+    <p>${message}</p>
+    <button id="okBtn" class="cyber-btn">はい</button>
+    <button id="cancelBtn" class="cyber-btn">キャンセル</button>
+  `);
+
+  document.getElementById("okBtn").onclick = ()=>{
+    document.querySelector(".modal-overlay").remove();
+    onOk();
+  };
+
+  document.getElementById("cancelBtn").onclick = ()=>{
+    document.querySelector(".modal-overlay").remove();
+  };
+}
+
 /* フォルダ追加 */
 function showFolderModal(parentId){
   createModal(`
@@ -98,8 +116,9 @@ export function drawFolderScreen(parentId = null) {
     <div class="panel">
       ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
       <div id="list"></div>
-      <button id="addBtn" class="cyber-btn">＋ 追加</button>
     </div>
+
+    <button id="addBtn" class="cyber-btn big-btn floating-add">＋ 追加</button>
   `;
 
   const list = app.querySelector("#list");
@@ -137,7 +156,10 @@ export function drawFolderScreen(parentId = null) {
     deleteBtn.className = "mini-btn cyber-btn";
     deleteBtn.onclick = (e)=>{
       e.stopPropagation();
-      if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
+      confirmModal("削除しますか？", ()=>{
+        deleteFolder(f.id);
+        drawFolderScreen(parentId);
+      });
     };
 
     actions.appendChild(renameBtn);
@@ -150,9 +172,7 @@ export function drawFolderScreen(parentId = null) {
 
   document.getElementById("addBtn").onclick = ()=> showFolderModal(parentId);
 
-  document.getElementById("backBtn")?.addEventListener("click",()=>{
-    drawFolderScreen(null);
-  });
+  document.getElementById("backBtn")?.onclick = ()=> drawFolderScreen(null);
 }
 
 /* ================= 単語画面 ================= */
@@ -169,9 +189,10 @@ export function drawWordScreen(subFolderId,parentFolderId){
     <div class="panel">
       <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
       <div id="wordList"></div>
-      <button id="addWordBtn" class="cyber-btn">＋ 単語追加</button>
-      <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
     </div>
+
+    <button id="addWordBtn" class="cyber-btn big-btn floating-add">＋ 単語追加</button>
+    <button id="startQuizBtn" class="cyber-btn big-btn floating-quiz">クイズ開始</button>
   `;
 
   const list = app.querySelector("#wordList");
@@ -180,21 +201,11 @@ export function drawWordScreen(subFolderId,parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    const front=document.createElement("div");
-    front.className="word-front";
-    front.textContent=w.front;
-
-    const back=document.createElement("div");
-    back.className="word-back";
-    back.textContent=w.back;
-
-    const note=document.createElement("div");
-    note.className="word-note";
-    note.textContent=w.note||"";
-
-    div.appendChild(front);
-    div.appendChild(back);
-    div.appendChild(note);
+    div.innerHTML = `
+      <div class="word-front">${w.front}</div>
+      <div class="word-back">${w.back}</div>
+      <div class="word-note">${w.note||""}</div>
+    `;
 
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
@@ -204,9 +215,7 @@ export function drawWordScreen(subFolderId,parentFolderId){
       b.textContent=tag;
       b.className="mini-btn cyber-btn";
 
-      if(w.tags.includes(tag)){
-        b.classList.add("active-tag");
-      }
+      if(w.tags.includes(tag)) b.classList.add("active-tag");
 
       b.onclick=()=>{
         updateWordTags(w.id,tag);
@@ -222,18 +231,17 @@ export function drawWordScreen(subFolderId,parentFolderId){
     deleteBtn.textContent="🗑";
     deleteBtn.className="mini-btn cyber-btn delete-btn";
     deleteBtn.onclick=()=>{
-      deleteWord(w.id);
-      drawWordScreen(subFolderId,parentFolderId);
+      confirmModal("削除しますか？", ()=>{
+        deleteWord(w.id);
+        drawWordScreen(subFolderId,parentFolderId);
+      });
     };
 
     div.appendChild(deleteBtn);
-
     list.appendChild(div);
   });
 
   document.getElementById("backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
-
   document.getElementById("addWordBtn").onclick = ()=> showWordModal(subFolderId,parentFolderId);
-
   document.getElementById("startQuizBtn").onclick = ()=> startQuiz(subFolderId);
 }
