@@ -46,19 +46,20 @@ export function drawFolderScreen(parentId = null) {
 
   folders.forEach(f=>{
     const div = document.createElement("div");
-    div.className = "folder-item neon-box"; // ★ 復旧
+    div.className = "folder-item neon-box";
 
-    const nameBtn = document.createElement("button");
-    nameBtn.textContent = f.name;
-    nameBtn.className = "folder-name cyber-btn";
-
-    nameBtn.onclick = ()=>{
+    // ★ フォルダ全体をクリック対象に
+    div.onclick = ()=>{
       if(parentId === null){
         drawFolderScreen(f.id);
       } else {
         drawWordScreen(f.id, parentId);
       }
     };
+
+    const nameBtn = document.createElement("button");
+    nameBtn.textContent = f.name;
+    nameBtn.className = "folder-name"; // ★ ボタン役割削除
 
     const actions = document.createElement("div");
     actions.className = "folder-actions";
@@ -67,7 +68,8 @@ export function drawFolderScreen(parentId = null) {
       const addSubBtn = document.createElement("button");
       addSubBtn.textContent = "+";
       addSubBtn.className = "mini-btn cyber-btn";
-      addSubBtn.onclick = ()=>{
+      addSubBtn.onclick = (e)=>{
+        e.stopPropagation(); // ★ 親クリック防止
         const subName = prompt("サブフォルダ名");
         if(subName){ addFolder(subName,f.id); drawFolderScreen(parentId); }
       };
@@ -77,7 +79,8 @@ export function drawFolderScreen(parentId = null) {
     const renameBtn = document.createElement("button");
     renameBtn.textContent = "✎";
     renameBtn.className = "mini-btn cyber-btn";
-    renameBtn.onclick = ()=>{
+    renameBtn.onclick = (e)=>{
+      e.stopPropagation();
       const newName = prompt("新しい名前", f.name);
       if(newName){ renameFolder(f.id,newName); drawFolderScreen(parentId); }
     };
@@ -85,7 +88,8 @@ export function drawFolderScreen(parentId = null) {
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑";
     deleteBtn.className = "mini-btn cyber-btn";
-    deleteBtn.onclick = ()=>{
+    deleteBtn.onclick = (e)=>{
+      e.stopPropagation();
       if(confirm("削除しますか？")){ deleteFolder(f.id); drawFolderScreen(parentId); }
     };
 
@@ -166,6 +170,14 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
       b.onclick=()=>{
         updateWordTags(w.id,tag);
+
+        // ★ 即時UI反映
+        if(b.classList.contains("active-tag")){
+          b.classList.remove("active-tag");
+        }else{
+          b.classList.add("active-tag");
+        }
+
         drawWordScreen(subFolderId, parentFolderId);
       };
 
