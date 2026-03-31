@@ -220,3 +220,22 @@ hr { border: 0; border-bottom:1px solid #0ff; margin:4px 0; }
   width: 100%;
   margin-bottom: 10px;
 }
+
+.word-item {
+  position: relative;
+  padding-bottom: 30px;
+}
+
+.tag-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 4px;
+}
+
+.delete-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
