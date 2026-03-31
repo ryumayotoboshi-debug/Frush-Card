@@ -102,7 +102,8 @@ function showWordModal(folderId, parentFolderId){
 /* ================= フォルダ画面 ================= */
 
 export function drawFolderScreen(parentId = null) {
-  document.body.className = "no-scroll";
+  document.body.classList.remove("word-screen");
+document.body.classList.add("no-scroll");
 
   const app = document.getElementById("app");
   currentFolderId = parentId;
@@ -178,7 +179,8 @@ export function drawFolderScreen(parentId = null) {
 /* ================= 単語画面 ================= */
 
 export function drawWordScreen(subFolderId,parentFolderId){
-  document.body.className = "word-screen";
+  document.body.classList.remove("no-scroll");
+document.body.classList.add("word-screen");
 
   setTitle("単語一覧");
 
