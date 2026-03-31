@@ -1,63 +1,118 @@
-/* 戻るボタン（absolute固定＋下げる） */
+body {
+  font-family: 'Orbitron', sans-serif;
+  padding: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
+  color: #0ff;
+}
+
+/* タイトル */
+#mainTitle {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow:
+    0 0 5px #0ff,
+    0 0 10px #0ff,
+    0 0 20px #0ff;
+}
+
+/* パネル */
+.panel {
+  padding-top: 80px;
+}
+
+/* 戻るボタン（下げて固定） */
 .back-btn {
-  position: absolute;
-  top: 120px;
+  position: fixed;
+  top: 110px;
   left: 10px;
   z-index: 1000;
 }
 
-/* 単語カードの基準 */
-.word-item {
+/* ネオン枠（復旧） */
+.neon-box {
+  border: 1px solid #0ff;
+  box-shadow: 0 0 6px #0ff;
+  padding: 10px;
   margin-bottom: 10px;
-  position: relative; /* ★重要 */
+}
+
+/* ボタン */
+.cyber-btn {
+  background: transparent;
+  color: #0ff;
+  border: 1px solid #0ff;
+  transition: 0.2s;
+}
+
+.cyber-btn:hover {
+  background: #0ff;
+  color: #000;
+  box-shadow: 0 0 10px #0ff;
+}
+
+/* 小ボタン */
+.mini-btn {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+/* フォルダ */
+.folder-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.folder-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ★ここが最重要：小さい枠を完全消去 */
+.folder-name {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent;
+  color: #0ff;
+  font-size: 20px;
+  padding: 0;
 }
 
 /* 単語 */
-.word-front {
-  font-size: 18px;
-  border-bottom: 1px solid #0ff;
-  margin-bottom: 4px;
+.word-item {
+  margin-bottom: 10px;
 }
 
-/* 意味 */
-.word-back {
-  font-size: 14px;
-}
-
-/* 説明 */
-.word-note {
+/* タグ */
+.tag-display {
   font-size: 12px;
-  opacity: 0.8;
 }
 
-/* タグ右上 */
-.tag-group {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 4px;
+/* タグ選択 */
+.active-tag {
+  background: #ff00ff;
+  color: #fff;
+  box-shadow: 0 0 8px #ff00ff;
 }
 
-/* ゴミ箱右下 */
-.delete-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+/* 入力欄 */
+input {
+  background: #000;
+  color: #0ff;
+  border: 1px solid #0ff;
 }
 
-/* 単語の見た目だけ整える（安全） */
-.word-front {
-  font-size: 16px;
-  border-bottom: 1px solid #0ff;
-  margin-bottom: 2px;
+/* スクロール制御 */
+body.no-scroll {
+  overflow: hidden;
 }
 
-.word-back {
-  font-size: 14px;
-}
-
-.word-note {
-  font-size: 12px;
-  opacity: 0.8;
+body.word-screen {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
