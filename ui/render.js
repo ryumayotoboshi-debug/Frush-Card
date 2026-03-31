@@ -142,27 +142,77 @@ export function drawWordScreen(subFolderId, parentFolderId){
   const list = app.querySelector("#list");
 
   words.forEach(w=>{
-    const div = document.createElement("div");
-    div.className = "item";
-    div.textContent = w.front + " : " + w.back;
+  const div = document.createElement("div");
+  div.className = "word-item neon-box";
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑";
+  // ★単語
+  const front = document.createElement("div");
+  front.textContent = w.front;
+  front.style.fontSize = "18px";
+  front.style.borderBottom = "1px solid #0ff";
+  front.style.marginBottom = "4px";
 
-    deleteBtn.onclick = ()=>{
-      openModal({
-        title:"削除確認",
-        inputs:[],
-        onSubmit:()=>{
-          deleteWord(w.id);
-          setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
-        }
-      });
+  // ★意味
+  const back = document.createElement("div");
+  back.textContent = w.back;
+  back.style.fontSize = "14px";
+
+  // ★説明
+  const note = document.createElement("div");
+  note.textContent = w.note || "";
+  note.style.fontSize = "12px";
+  note.style.opacity = "0.8";
+
+  div.appendChild(front);
+  div.appendChild(back);
+  div.appendChild(note);
+
+  // ★タグ（右上）
+  const tagDiv = document.createElement("div");
+  tagDiv.className = "tag-container";
+
+  ["完璧","要復習","苦手"].forEach(tag=>{
+    const b = document.createElement("button");
+    b.textContent = tag;
+    b.className = "mini-btn cyber-btn";
+
+    if(w.tags && w.tags.includes(tag)){
+      b.classList.add("active-tag");
+    }
+
+    b.onclick = ()=>{
+      // タグ機能がある場合のみ
+      if(typeof updateWordTags === "function"){
+        updateWordTags(w.id, tag);
+      }
+      setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
     };
 
-    div.appendChild(deleteBtn);
-    list.appendChild(div);
+    tagDiv.appendChild(b);
   });
+
+  div.appendChild(tagDiv);
+
+  // ★削除ボタン（右下）
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "🗑";
+  deleteBtn.className = "mini-btn cyber-btn delete-btn";
+
+  deleteBtn.onclick = ()=>{
+    openModal({
+      title:"削除確認",
+      inputs:[],
+      onSubmit:()=>{
+        deleteWord(w.id);
+        setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
+      }
+    });
+  };
+
+  div.appendChild(deleteBtn);
+
+  list.appendChild(div);
+});
 
   // 戻る
   app.querySelector("#backBtn").onclick = ()=>{
