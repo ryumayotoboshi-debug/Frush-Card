@@ -139,17 +139,15 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    // ★単語
+    // ★ここだけ安全に構造追加
     const front = document.createElement("div");
     front.className = "word-front";
     front.textContent = w.front;
 
-    // ★意味
     const back = document.createElement("div");
     back.className = "word-back";
     back.textContent = w.back;
 
-    // ★説明
     const note = document.createElement("div");
     note.className = "word-note";
     note.textContent = w.note || "";
@@ -158,6 +156,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
     div.appendChild(back);
     div.appendChild(note);
 
+    // ★既存構造そのまま
     const tagDisplay = document.createElement("div");
     tagDisplay.className="tag-display";
     div.appendChild(tagDisplay);
