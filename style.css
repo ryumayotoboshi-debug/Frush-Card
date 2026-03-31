@@ -105,6 +105,7 @@ input {
   background: #000;
   color: #0ff;
   border: 1px solid #0ff;
+  font-size: 16px;
 }
 
 /* スクロール制御 */
@@ -209,4 +210,5 @@ body {
 .modal-box input {
   width: 100%;
   margin-bottom: 10px;
+  font-size: 16px;
 }
