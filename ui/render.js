@@ -6,11 +6,9 @@ import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 
-// タイトル制御
 function setTitle(text){
   const title = document.getElementById("mainTitle");
   if(!title) return;
-
   title.style.display = "block";
   title.textContent = text;
 }
@@ -137,30 +135,36 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    // 単語
+    // ★ここだけ変更（分解して整形）
     const front = document.createElement("div");
     front.className = "word-front";
     front.textContent = w.front;
 
-    // 意味
     const back = document.createElement("div");
     back.className = "word-back";
     back.textContent = w.back;
 
-    // 説明
     const note = document.createElement("div");
     note.className = "word-note";
     note.textContent = w.note || "未設定";
 
-    // ゴミ箱（右下）
+    div.appendChild(front);
+    div.appendChild(back);
+    div.appendChild(note);
+
+    // ★既存タグ表示そのまま
+    const tagDisplay = document.createElement("div");
+    tagDisplay.className="tag-display";
+    tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
+    div.appendChild(tagDisplay);
+
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
-    deleteBtn.className="mini-btn cyber-btn delete-btn";
+    deleteBtn.className="mini-btn cyber-btn";
     deleteBtn.onclick=()=>{ deleteWord(w.id); drawWordScreen(subFolderId, parentFolderId); };
+    div.appendChild(deleteBtn);
 
-    // タグ（右上）
     const tagDiv=document.createElement("div");
-    tagDiv.className="tag-group";
 
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
@@ -171,8 +175,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
         b.classList.add("active-tag");
       }
 
-      b.onclick=(e)=>{
-        e.stopPropagation();
+      b.onclick=()=>{
         updateWordTags(w.id,tag);
         drawWordScreen(subFolderId, parentFolderId);
       };
@@ -180,12 +183,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
       tagDiv.appendChild(b);
     });
 
-    div.appendChild(front);
-    div.appendChild(back);
-    div.appendChild(note);
     div.appendChild(tagDiv);
-    div.appendChild(deleteBtn);
-
     list.appendChild(div);
   });
 
