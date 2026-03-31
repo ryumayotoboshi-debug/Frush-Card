@@ -116,3 +116,26 @@ body.word-screen {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+/* ★単語カードを基準にする */
+.word-item {
+  position: relative; /* ★追加 */
+  margin-bottom: 10px;
+  padding-bottom: 30px; /* ★ボタン被り防止 */
+}
+
+/* ★タグ：右上固定 */
+.tag-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 4px;
+}
+
+/* ★削除ボタン：右下固定 */
+.delete-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
