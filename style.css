@@ -270,3 +270,30 @@ body {
 #list {
   padding-bottom: 80px;
 }
+
+/* 固定ボタン（安全版） */
+.floating-add {
+  position: fixed;
+  top: 110px;
+  right: 12px;
+  z-index: 500;
+}
+
+.floating-quiz {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.7;
+  width: 85%;
+  z-index: 500;
+}
+
+/* 被り防止（超重要） */
+#wordList {
+  padding-bottom: 120px;
+}
+
+#list {
+  padding-bottom: 100px;
+}
