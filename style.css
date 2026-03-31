@@ -158,3 +158,21 @@ body.word-screen {
   bottom: 5px;
   right: 5px;
 }
+
+/* 新規フォルダ追加入力 */
+#newName {
+  font-size: 16px; /* iPhone自動ズーム防止 */
+  padding: 4px 6px;
+  width: calc(100% - 12px);
+  box-sizing: border-box;
+}
+
+/* 新規単語追加入力 */
+#wordInput,
+#answerInput,
+#explanationInput {
+  font-size: 16px; /* iPhone自動ズーム防止 */
+  padding: 4px 6px;
+  width: calc(100% - 12px);
+  box-sizing: border-box;
+}
