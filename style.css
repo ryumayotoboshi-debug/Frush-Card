@@ -10,7 +10,7 @@ body {
 /* タイトル */
 #mainTitle {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   color: #fff;
   text-shadow:
     0 0 5px #0ff,
@@ -20,20 +20,18 @@ body {
 
 /* パネル */
 .panel {
-  position: relative;
-  padding-top: 60px; /* 少し減らす */
-  min-height: 100vh;
+  padding-top: 80px;
 }
 
-/* 戻るボタン */
+/* 戻るボタン（下げて固定） */
 .back-btn {
   position: fixed;
-  top: 70px;
+  top: 110px;
   left: 10px;
-  z-index: 100;
+  z-index: 1000;
 }
 
-/* ネオン */
+/* ネオン枠（復旧） */
 .neon-box {
   border: 1px solid #0ff;
   box-shadow: 0 0 6px #0ff;
@@ -55,11 +53,7 @@ body {
   box-shadow: 0 0 10px #0ff;
 }
 
-.big-btn {
-  font-size: 18px;
-  padding: 12px;
-}
-
+/* 小ボタン */
 .mini-btn {
   font-size: 12px;
   padding: 4px 6px;
@@ -78,34 +72,79 @@ body {
   gap: 6px;
 }
 
+/* ★ここが最重要：小さい枠を完全消去 */
 .folder-name {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent;
+  color: #0ff;
   font-size: 20px;
+  padding: 0;
 }
 
 /* 単語 */
 .word-item {
-  position: relative;
   margin-bottom: 10px;
-  padding-bottom: 40px;
-}
-
-/* 単語構造 */
-.word-front {
-  font-size: 22px;
-  border-bottom: 1px solid #0ff;
-  margin-bottom: 5px;
-}
-
-.word-back {
-  font-size: 16px;
-}
-
-.word-note {
-  font-size: 12px;
-  opacity: 0.8;
 }
 
 /* タグ */
+.tag-display {
+  font-size: 12px;
+}
+
+/* タグ選択 */
+.active-tag {
+  background: #ff00ff;
+  color: #fff;
+  box-shadow: 0 0 8px #ff00ff;
+}
+
+/* 入力欄 */
+input {
+  background: #000;
+  color: #0ff;
+  border: 1px solid #0ff;
+}
+
+/* スクロール制御 */
+body.no-scroll {
+  overflow: hidden;
+}
+
+body.word-screen {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ★単語カードを基準にする */
+.word-item {
+  position: relative; /* ★追加 */
+  margin-bottom: 10px;
+  padding-bottom: 30px; /* ★ボタン被り防止 */
+}
+
+/* ★タグ：右上固定 */
+.tag-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 4px;
+}
+
+/* ★削除ボタン：右下固定 */
+.delete-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.word-item {
+  position: relative;
+  padding-bottom: 30px;
+}
+
 .tag-container {
   position: absolute;
   top: 5px;
@@ -118,53 +157,4 @@ body {
   position: absolute;
   bottom: 5px;
   right: 5px;
-}
-
-/* モーダル */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  z-index: 1000;
-}
-
-.modal-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  background: #000;
-  border: 1px solid #0ff;
-  padding: 20px;
-  width: 80%;
-}
-
-/* 固定ボタン */
-.floating-add {
-  position: fixed;
-  top: 70px;
-  right: 10px;
-  z-index: 100;
-}
-
-.floating-quiz {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 85%;
-  opacity: 0.8;
-  z-index: 100;
-}
-
-/* 被り防止 */
-#list {
-  padding-bottom: 80px;
-}
-
-#wordList {
-  padding-bottom: 120px;
 }
