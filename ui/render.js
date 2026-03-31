@@ -1,6 +1,6 @@
 "use strict";
 
-import { getFolders, addFolder, deleteFolder, renameFolder } from "../features/folders.js";
+import { getFolderTree, addFolder, deleteFolder, renameFolder } from "../features/folders.js";
 import { getWords, addWord, deleteWord } from "../features/words.js";
 import { openModal } from "./modal.js";
 
@@ -12,7 +12,7 @@ const app = document.getElementById("app");
 // =====================
 export function drawFolderScreen(parentId = null){
 
-  const folders = getFolders(parentId);
+  const folders = getFolderTree(parentId);
 
   app.innerHTML = `
     <h1>単語帳</h1>
