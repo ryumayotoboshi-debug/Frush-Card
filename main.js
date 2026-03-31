@@ -1,15 +1,11 @@
 "use strict";
 
-// ======================================
-// メインエントリーポイント
-// ======================================
-
-import { drawFolderScreen } from "./ui/render.js";
 import { seed } from "./data/seed.js";
+import { drawFolderScreen } from "./ui/render.js";
 
-// ★ 初期データ投入
-// 既にデータがあれば何もしない
+// iPhoneのみでも必ず初期データをセット
+localStorage.removeItem("wordAppData");
 seed();
 
-// ★ 初期画面描画
+// フォルダ画面描画
 drawFolderScreen();
