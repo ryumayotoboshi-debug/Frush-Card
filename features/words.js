@@ -3,7 +3,7 @@
 import { load, save } from "../data/storage.js";
 
 // 単語取得
-export function getWords(folderId) {
+export function getWords(subfolderId) {
   const data = load();
   return data.words.filter(w => w.folderId === folderId);
 }
