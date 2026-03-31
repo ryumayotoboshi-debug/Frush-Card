@@ -22,7 +22,11 @@ export function drawFolderScreen(parentId = null) {
 
   currentFolderId = parentId;
 
-  setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
+  if(parentId === null){
+    setTitle("単語帳");
+  }else{
+    setTitle("フォルダ一覧");
+  }
 
   const folders = getFolderTree(parentId)
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
@@ -135,24 +139,10 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    // ★ここだけ変更（分解して整形）
-    const front = document.createElement("div");
-    front.className = "word-front";
-    front.textContent = w.front;
+    const text = document.createElement("div");
+    text.textContent = `${w.front} → ${w.back} : ${w.note||"未設定"}`;
+    div.appendChild(text);
 
-    const back = document.createElement("div");
-    back.className = "word-back";
-    back.textContent = w.back;
-
-    const note = document.createElement("div");
-    note.className = "word-note";
-    note.textContent = w.note || "未設定";
-
-    div.appendChild(front);
-    div.appendChild(back);
-    div.appendChild(note);
-
-    // ★既存タグ表示そのまま
     const tagDisplay = document.createElement("div");
     tagDisplay.className="tag-display";
     tagDisplay.textContent = w.tags.length ? `タグ: ${w.tags.join(", ")}` : "タグ: なし";
@@ -177,6 +167,13 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
       b.onclick=()=>{
         updateWordTags(w.id,tag);
+
+        if(b.classList.contains("active-tag")){
+          b.classList.remove("active-tag");
+        }else{
+          b.classList.add("active-tag");
+        }
+
         drawWordScreen(subFolderId, parentFolderId);
       };
 
