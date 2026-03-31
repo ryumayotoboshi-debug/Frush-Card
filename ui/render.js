@@ -1,227 +1,185 @@
 "use strict";
 
-import { getFolderTree, addFolder, renameFolder, deleteFolder } from "../features/folders.js";
-import { getWords, addWord, deleteWord, updateWordTags } from "../features/cards.js";
-import { startQuiz } from "../features/quiz.js";
+import { getFolders, addFolder, deleteFolder, renameFolder } from "./data/folders.js";
+import { getWords, addWord, deleteWord } from "./data/words.js";
+import { openModal } from "./ui/modal.js";
 
-let currentFolderId = null;
+const app = document.getElementById("app");
 
-function setTitle(text){
-  const title = document.getElementById("mainTitle");
-  if(!title) return;
-  title.style.display = "block";
-  title.textContent = text;
-}
 
-// ---------------- フォルダ画面 ----------------
-export function drawFolderScreen(parentId = null) {
-  document.body.className = "no-scroll";
+// =====================
+// フォルダ画面
+// =====================
+export function drawFolderScreen(parentId = null){
 
-  const app = document.getElementById("app");
-  if (!app) return alert("appが見つかりません");
-
-  currentFolderId = parentId;
-
-  setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
-
-  const folders = getFolderTree(parentId)
-    .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
+  const folders = getFolders(parentId);
 
   app.innerHTML = `
-    <div class="panel">
-      ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
-      <div id="list"></div>
-      <input id="newName" placeholder="新しいフォルダ">
-      <button id="addBtn" class="cyber-btn">追加</button>
+    <h1>単語帳</h1>
+
+    <div>
+      <button id="addBtn" class="cyber-btn">＋フォルダ追加</button>
     </div>
+
+    <div id="list"></div>
   `;
 
   const list = app.querySelector("#list");
 
   folders.forEach(f=>{
     const div = document.createElement("div");
-    div.className = "folder-item neon-box";
+    div.className = "item";
+    div.textContent = f.name;
 
+    // フォルダクリック → 中へ
     div.onclick = ()=>{
-      if(parentId === null){
-        drawFolderScreen(f.id);
-      } else {
-        drawWordScreen(f.id, parentId);
-      }
+      drawFolderScreen(f.id);
     };
 
-    const nameBtn = document.createElement("button");
-    nameBtn.textContent = f.name;
-    nameBtn.className = "folder-name";
-
-    const actions = document.createElement("div");
-    actions.className = "folder-actions";
-
-    if(parentId !== null){
-      const addSubBtn = document.createElement("button");
-      addSubBtn.textContent = "+";
-      addSubBtn.className = "mini-btn cyber-btn";
-      addSubBtn.onclick = (e)=>{
-        e.stopPropagation();
-        const subName = prompt("サブフォルダ名");
-        if(subName){
-          addFolder(subName,f.id);
-          setTimeout(()=>drawFolderScreen(parentId),0);
-        }
-      };
-      actions.appendChild(addSubBtn);
-    }
-
+    // --- 操作ボタン ---
     const renameBtn = document.createElement("button");
-    renameBtn.textContent = "✎";
-    renameBtn.className = "mini-btn cyber-btn";
+    renameBtn.textContent = "✏️";
+
     renameBtn.onclick = (e)=>{
       e.stopPropagation();
-      const newName = prompt("新しい名前", f.name);
-      if(newName){
-        renameFolder(f.id,newName);
-        setTimeout(()=>drawFolderScreen(parentId),0);
-      }
+
+      openModal({
+        title:"名前変更",
+        inputs:[f.name],
+        onSubmit:([name])=>{
+          if(!name) return;
+
+          renameFolder(f.id,name);
+          setTimeout(()=>drawFolderScreen(parentId),0);
+        }
+      });
     };
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑";
-    deleteBtn.className = "mini-btn cyber-btn";
+
     deleteBtn.onclick = (e)=>{
       e.stopPropagation();
-      if(confirm("削除しますか？")){
-        deleteFolder(f.id);
-        setTimeout(()=>drawFolderScreen(parentId),0);
-      }
+
+      openModal({
+        title:"削除確認",
+        inputs:[],
+        onSubmit:()=>{
+          deleteFolder(f.id);
+          setTimeout(()=>drawFolderScreen(parentId),0);
+        }
+      });
     };
 
-    actions.appendChild(renameBtn);
-    actions.appendChild(deleteBtn);
+    const addSubBtn = document.createElement("button");
+    addSubBtn.textContent = "＋";
 
-    div.appendChild(nameBtn);
-    div.appendChild(actions);
+    addSubBtn.onclick = (e)=>{
+      e.stopPropagation();
+
+      openModal({
+        title:"サブフォルダ追加",
+        inputs:["名前"],
+        onSubmit:([name])=>{
+          if(!name) return;
+
+          addFolder(name,f.id);
+          setTimeout(()=>drawFolderScreen(parentId),0);
+        }
+      });
+    };
+
+    const openWordsBtn = document.createElement("button");
+    openWordsBtn.textContent = "📖";
+
+    openWordsBtn.onclick = (e)=>{
+      e.stopPropagation();
+      drawWordScreen(f.id, parentId);
+    };
+
+    div.appendChild(renameBtn);
+    div.appendChild(deleteBtn);
+    div.appendChild(addSubBtn);
+    div.appendChild(openWordsBtn);
+
     list.appendChild(div);
   });
 
-  app.querySelector("#addBtn")?.addEventListener("click",()=>{
-    const name = app.querySelector("#newName").value.trim();
-    if(!name){ alert("名前を入力してください"); return; }
+  // フォルダ追加
+  app.querySelector("#addBtn").onclick = ()=>{
+    openModal({
+      title:"フォルダ追加",
+      inputs:["フォルダ名"],
+      onSubmit:([name])=>{
+        if(!name) return;
 
-    addFolder(name,parentId);
-    app.querySelector("#newName").value="";
-
-    setTimeout(()=>drawFolderScreen(parentId),0);
-  });
-
-  app.querySelector("#backBtn")?.addEventListener("click",()=>{
-    drawFolderScreen(null);
-  });
+        addFolder(name,parentId);
+        setTimeout(()=>drawFolderScreen(parentId),0);
+      }
+    });
+  };
 }
 
-// ---------------- 単語画面 ----------------
+
+// =====================
+// 単語画面
+// =====================
 export function drawWordScreen(subFolderId, parentFolderId){
-  document.body.className = "word-screen";
 
-  setTitle("単語一覧");
-
-  currentFolderId = subFolderId;
-  const app = document.getElementById("app");
   const words = getWords(subFolderId);
 
-  app.innerHTML=`
-    <div class="panel">
-      <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
-      <div id="wordList"></div>
+  app.innerHTML = `
+    <h1>単語</h1>
 
-      <input id="wordInput" placeholder="単語">
-      <input id="answerInput" placeholder="意味">
-      <input id="explanationInput" placeholder="説明">
-
-      <button id="addWordBtn" class="cyber-btn">追加</button>
-      <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
+    <div>
+      <button id="backBtn" class="cyber-btn">戻る</button>
+      <button id="addWordBtn" class="cyber-btn">＋単語追加</button>
     </div>
+
+    <div id="list"></div>
   `;
 
-  const list = app.querySelector("#wordList");
+  const list = app.querySelector("#list");
 
   words.forEach(w=>{
-    const div=document.createElement("div");
-    div.className="word-item neon-box";
+    const div = document.createElement("div");
+    div.className = "item";
+    div.textContent = w.front + " : " + w.back;
 
-    // ★単語
-    const front = document.createElement("div");
-    front.textContent = w.front;
-    front.style.fontSize = "18px";
-    front.style.borderBottom = "1px solid #0ff";
-    front.style.marginBottom = "4px";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑";
 
-    // ★意味
-    const back = document.createElement("div");
-    back.textContent = w.back;
-    back.style.fontSize = "14px";
-
-    // ★説明
-    const note = document.createElement("div");
-    note.textContent = w.note || "";
-    note.style.fontSize = "12px";
-    note.style.opacity = "0.8";
-
-    div.appendChild(front);
-    div.appendChild(back);
-    div.appendChild(note);
-
-    // タグ
-    const tagDiv=document.createElement("div");
-    tagDiv.className="tag-container";
-
-    ["完璧","要復習","苦手"].forEach(tag=>{
-      const b=document.createElement("button");
-      b.textContent=tag;
-      b.className="mini-btn cyber-btn";
-
-      if(w.tags.includes(tag)){
-        b.classList.add("active-tag");
-      }
-
-      b.onclick=()=>{
-        updateWordTags(w.id,tag);
-        setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
-      };
-
-      tagDiv.appendChild(b);
-    });
-
-    div.appendChild(tagDiv);
-
-    // 削除
-    const deleteBtn=document.createElement("button");
-    deleteBtn.textContent="🗑";
-    deleteBtn.className="mini-btn cyber-btn delete-btn";
-    deleteBtn.onclick=()=>{
-      if(confirm("削除しますか？")){
-        deleteWord(w.id);
-        setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
-      }
+    deleteBtn.onclick = ()=>{
+      openModal({
+        title:"削除確認",
+        inputs:[],
+        onSubmit:()=>{
+          deleteWord(w.id);
+          setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
+        }
+      });
     };
 
     div.appendChild(deleteBtn);
-
     list.appendChild(div);
   });
 
-  app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
-
-  app.querySelector("#addWordBtn").onclick = ()=>{
-    const front = app.querySelector("#wordInput").value.trim();
-    const back = app.querySelector("#answerInput").value.trim();
-    const note = app.querySelector("#explanationInput").value.trim();
-
-    if(!front||!back){ alert("単語と意味は必須"); return; }
-
-    addWord({front,back,note,folderId:subFolderId});
-
-    setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
+  // 戻る
+  app.querySelector("#backBtn").onclick = ()=>{
+    drawFolderScreen(parentFolderId);
   };
 
-  app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
+  // 単語追加
+  app.querySelector("#addWordBtn").onclick = ()=>{
+    openModal({
+      title:"単語追加",
+      inputs:["単語","意味","説明"],
+      onSubmit:([front,back,note])=>{
+        if(!front || !back) return;
+
+        addWord({front,back,note,folderId:subFolderId});
+        setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
+      }
+    });
+  };
 }
