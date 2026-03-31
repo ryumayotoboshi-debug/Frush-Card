@@ -1,160 +1,21 @@
-body {
-  font-family: 'Orbitron', sans-serif;
-  padding: 10px;
-  max-width: 480px;
-  margin: 0 auto;
-  background: radial-gradient(circle at top, #0a0a0a, #000);
-  color: #0ff;
-}
-
-/* タイトル */
-#mainTitle {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #fff;
-  text-shadow:
-    0 0 5px #0ff,
-    0 0 10px #0ff,
-    0 0 20px #0ff;
-}
-
-/* パネル */
-.panel {
-  padding-top: 80px;
-}
-
-/* 戻るボタン（下げて固定） */
-.back-btn {
-  position: fixed;
-  top: 110px;
-  left: 10px;
-  z-index: 1000;
-}
-
-/* ネオン枠（復旧） */
-.neon-box {
-  border: 1px solid #0ff;
-  box-shadow: 0 0 6px #0ff;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* ボタン */
-.cyber-btn {
-  background: transparent;
-  color: #0ff;
-  border: 1px solid #0ff;
-  transition: 0.2s;
-}
-
-.cyber-btn:hover {
-  background: #0ff;
-  color: #000;
-  box-shadow: 0 0 10px #0ff;
-}
-
-/* 小ボタン */
-.mini-btn {
-  font-size: 12px;
-  padding: 4px 6px;
-}
-
-/* フォルダ */
-.folder-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.folder-actions {
-  display: flex;
-  gap: 6px;
-}
-
-/* ★ここが最重要：小さい枠を完全消去 */
-.folder-name {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  background: transparent;
-  color: #0ff;
+/* ★単語レイアウト */
+.word-front {
   font-size: 20px;
-  padding: 0;
+  border-bottom: 1px solid #0ff;
+  margin-bottom: 4px;
 }
 
-/* 単語 */
-.word-item {
-  margin-bottom: 10px;
+.word-back {
+  font-size: 16px;
+  margin-bottom: 2px;
 }
 
-/* タグ */
-.tag-display {
-  font-size: 12px;
+.word-note {
+  font-size: 13px;
+  opacity: 0.8;
 }
 
-/* タグ選択 */
-.active-tag {
-  background: #ff00ff;
-  color: #fff;
-  box-shadow: 0 0 8px #ff00ff;
-}
-
-/* 入力欄 */
-input {
-  background: #000;
-  color: #0ff;
-  border: 1px solid #0ff;
-}
-
-/* スクロール制御 */
-body.no-scroll {
-  overflow: hidden;
-}
-
-body.word-screen {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-/* ★単語カードを基準にする */
-.word-item {
-  position: relative; /* ★追加 */
-  margin-bottom: 10px;
-  padding-bottom: 30px; /* ★ボタン被り防止 */
-}
-
-/* ★タグ：右上固定 */
-.tag-container {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 4px;
-}
-
-/* ★削除ボタン：右下固定 */
-.delete-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-}
-
-.word-item {
-  position: relative;
-  padding-bottom: 30px;
-}
-
-.tag-container {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 4px;
-}
-
-.delete-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+/* ★ステータスバー非表示（PWA/ブラウザ用） */
+body {
+  padding-top: 0 !important;
 }
