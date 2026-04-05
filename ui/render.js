@@ -18,10 +18,9 @@ export function drawFolderScreen(parentId = null) {
   document.body.className = "no-scroll";
 
   const app = document.getElementById("app");
-  if (!app) return alert("appが見つかりません");
+  if (!app) return;
 
   currentFolderId = parentId;
-
   setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
 
   const folders = getFolderTree(parentId)
@@ -30,9 +29,17 @@ export function drawFolderScreen(parentId = null) {
   app.innerHTML = `
     <div class="panel">
       ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
+
+      <!-- ★追加ボタン -->
+      <button id="showAddFolder" class="mini-btn cyber-btn" style="position:fixed; top:110px; right:10px;">＋</button>
+
+      <!-- ★入力フォーム（初期非表示） -->
+      <div id="addFolderForm" style="display:none;">
+        <input id="newFolderName" placeholder="フォルダ名">
+        <button id="createFolderBtn" class="cyber-btn">追加</button>
+      </div>
+
       <div id="list"></div>
-      <input id="newName" placeholder="新しいフォルダ">
-      <button id="addBtn" class="cyber-btn">追加</button>
     </div>
   `;
 
@@ -56,21 +63,6 @@ export function drawFolderScreen(parentId = null) {
 
     const actions = document.createElement("div");
     actions.className = "folder-actions";
-
-    if(parentId !== null){
-      const addSubBtn = document.createElement("button");
-      addSubBtn.textContent = "+";
-      addSubBtn.className = "mini-btn cyber-btn";
-      addSubBtn.onclick = (e)=>{
-        e.stopPropagation();
-        const subName = prompt("サブフォルダ名");
-        if(subName){
-          addFolder(subName,f.id);
-          setTimeout(()=>drawFolderScreen(parentId),0);
-        }
-      };
-      actions.appendChild(addSubBtn);
-    }
 
     const renameBtn = document.createElement("button");
     renameBtn.textContent = "✎";
@@ -103,19 +95,22 @@ export function drawFolderScreen(parentId = null) {
     list.appendChild(div);
   });
 
-  app.querySelector("#addBtn")?.addEventListener("click",()=>{
-    const name = app.querySelector("#newName").value.trim();
-    if(!name){ alert("名前を入力してください"); return; }
+  // ★追加ボタン動作
+  app.querySelector("#showAddFolder").onclick = ()=>{
+    document.getElementById("addFolderForm").style.display = "block";
+  };
+
+  app.querySelector("#createFolderBtn").onclick = ()=>{
+    const name = document.getElementById("newFolderName").value.trim();
+    if(!name) return alert("名前を入力してください");
 
     addFolder(name,parentId);
-    app.querySelector("#newName").value="";
-
     setTimeout(()=>drawFolderScreen(parentId),0);
-  });
+  };
 
-  app.querySelector("#backBtn")?.addEventListener("click",()=>{
+  app.querySelector("#backBtn")?.onclick = ()=>{
     drawFolderScreen(null);
-  });
+  };
 }
 
 // ---------------- 単語画面 ----------------
@@ -131,13 +126,20 @@ export function drawWordScreen(subFolderId, parentFolderId){
   app.innerHTML=`
     <div class="panel">
       <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
+
+      <!-- ★追加ボタン -->
+      <button id="showAddWord" class="mini-btn cyber-btn" style="position:fixed; top:110px; right:10px;">＋</button>
+
+      <!-- ★入力フォーム -->
+      <div id="addWordForm" style="display:none;">
+        <input id="wordInput" placeholder="単語">
+        <input id="answerInput" placeholder="意味">
+        <input id="explanationInput" placeholder="説明">
+        <button id="createWordBtn" class="cyber-btn">追加</button>
+      </div>
+
       <div id="wordList"></div>
 
-      <input id="wordInput" placeholder="単語">
-      <input id="answerInput" placeholder="意味">
-      <input id="explanationInput" placeholder="説明">
-
-      <button id="addWordBtn" class="cyber-btn">追加</button>
       <button id="startQuizBtn" class="cyber-btn">クイズ開始</button>
     </div>
   `;
@@ -148,29 +150,22 @@ export function drawWordScreen(subFolderId, parentFolderId){
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
-    // ★単語
     const front = document.createElement("div");
     front.textContent = w.front;
     front.style.fontSize = "18px";
     front.style.borderBottom = "1px solid #0ff";
-    front.style.marginBottom = "4px";
 
-    // ★意味
     const back = document.createElement("div");
     back.textContent = w.back;
-    back.style.fontSize = "14px";
 
-    // ★説明
     const note = document.createElement("div");
     note.textContent = w.note || "";
-    note.style.fontSize = "12px";
-    note.style.opacity = "0.8";
 
     div.appendChild(front);
     div.appendChild(back);
     div.appendChild(note);
 
-    // タグ
+    // ★タグ（トグル化）
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
 
@@ -184,7 +179,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
       }
 
       b.onclick=()=>{
-        updateWordTags(w.id,tag);
+        updateWordTags(w.id,tag); // ← toggle前提
         setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
       };
 
@@ -193,7 +188,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
     div.appendChild(tagDiv);
 
-    // 削除
     const deleteBtn=document.createElement("button");
     deleteBtn.textContent="🗑";
     deleteBtn.className="mini-btn cyber-btn delete-btn";
@@ -211,15 +205,19 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
-  app.querySelector("#addWordBtn").onclick = ()=>{
-    const front = app.querySelector("#wordInput").value.trim();
-    const back = app.querySelector("#answerInput").value.trim();
-    const note = app.querySelector("#explanationInput").value.trim();
+  // ★追加UI
+  app.querySelector("#showAddWord").onclick = ()=>{
+    document.getElementById("addWordForm").style.display = "block";
+  };
 
-    if(!front||!back){ alert("単語と意味は必須"); return; }
+  app.querySelector("#createWordBtn").onclick = ()=>{
+    const front = document.getElementById("wordInput").value.trim();
+    const back = document.getElementById("answerInput").value.trim();
+    const note = document.getElementById("explanationInput").value.trim();
+
+    if(!front||!back) return alert("単語と意味は必須");
 
     addWord({front,back,note,folderId:subFolderId});
-
     setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
   };
 
