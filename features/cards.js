@@ -29,20 +29,18 @@ export function deleteWord(id){
 
 // ★トグル仕様に変更
 export function updateWordTags(wordId, tag){
-  const words = loadWords();
+  const data = load();
 
-  const w = words.find(w => w.id === wordId);
+  const w = data.words.find(w => w.id === wordId);
   if(!w) return;
 
-  if(!w.tags) w.tags = [];
+  if(!Array.isArray(w.tags)) w.tags = [];
 
   if(w.tags.includes(tag)){
-    // ★すでにある → 削除（OFF）
     w.tags = w.tags.filter(t => t !== tag);
   } else {
-    // ★ない → 追加（ON）
     w.tags.push(tag);
   }
 
-  saveWords(words);
+  save(data);
 }
