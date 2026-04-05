@@ -1,6 +1,10 @@
 "use strict";
 
-import { seed } from "./data/seed.js";
+import { drawFolderScreen } from "./features/render.js";
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  drawFolderScreen(null);
+});
 
 // localStorage に古いデータがあれば削除して初期化
 localStorage.removeItem("wordAppData");
