@@ -93,17 +93,28 @@ export function drawFolderScreen(parentId = null) {
     list.appendChild(div);
   });
 
-  app.querySelector("#showAddFolder").onclick = ()=>{
-    document.getElementById("addFolderForm").style.display = "block";
-  };
+  // ★追加ボタン（安全化）
+  const showBtn = app.querySelector("#showAddFolder");
+  const form = app.querySelector("#addFolderForm");
 
-  app.querySelector("#createFolderBtn").onclick = ()=>{
-    const name = document.getElementById("newFolderName").value.trim();
-    if(!name) return alert("名前を入力してください");
+  if(showBtn && form){
+    showBtn.onclick = ()=>{
+      form.style.display = "block";
+    };
+  }
 
-    addFolder(name,parentId);
-    setTimeout(()=>drawFolderScreen(parentId),0);
-  };
+  const createBtn = app.querySelector("#createFolderBtn");
+  const input = app.querySelector("#newFolderName");
+
+  if(createBtn && input){
+    createBtn.onclick = ()=>{
+      const name = input.value.trim();
+      if(!name) return alert("名前を入力してください");
+
+      addFolder(name,parentId);
+      setTimeout(()=>drawFolderScreen(parentId),0);
+    };
+  }
 
   app.querySelector("#backBtn")?.onclick = ()=>{
     drawFolderScreen(null);
@@ -160,6 +171,7 @@ export function drawWordScreen(subFolderId, parentFolderId){
     div.appendChild(back);
     div.appendChild(note);
 
+    // ★タグ安全化
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
 
@@ -201,20 +213,33 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
-  app.querySelector("#showAddWord").onclick = ()=>{
-    document.getElementById("addWordForm").style.display = "block";
-  };
+  // ★追加UI（安全化）
+  const showWordBtn = app.querySelector("#showAddWord");
+  const wordForm = app.querySelector("#addWordForm");
 
-  app.querySelector("#createWordBtn").onclick = ()=>{
-    const front = document.getElementById("wordInput").value.trim();
-    const back = document.getElementById("answerInput").value.trim();
-    const note = document.getElementById("explanationInput").value.trim();
+  if(showWordBtn && wordForm){
+    showWordBtn.onclick = ()=>{
+      wordForm.style.display = "block";
+    };
+  }
 
-    if(!front||!back) return alert("単語と意味は必須");
+  const createWordBtn = app.querySelector("#createWordBtn");
+  const wordInput = app.querySelector("#wordInput");
+  const answerInput = app.querySelector("#answerInput");
+  const explanationInput = app.querySelector("#explanationInput");
 
-    addWord({front,back,note,folderId:subFolderId});
-    setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
-  };
+  if(createWordBtn && wordInput && answerInput && explanationInput){
+    createWordBtn.onclick = ()=>{
+      const front = wordInput.value.trim();
+      const back = answerInput.value.trim();
+      const note = explanationInput.value.trim();
+
+      if(!front||!back) return alert("単語と意味は必須");
+
+      addWord({front,back,note,folderId:subFolderId});
+      setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
+    };
+  }
 
   app.querySelector("#startQuizBtn").onclick = ()=> startQuiz(subFolderId);
 }
