@@ -29,16 +29,20 @@ export function deleteWord(id){
 
 // ★トグル仕様に変更
 export function updateWordTags(wordId, tag){
-  const data=load();
-  const w = data.words.find(w=>w.id===wordId);
-  if(w){
-    if(w.tags.includes(tag)){
-      // 既にある → 削除
-      w.tags = w.tags.filter(t=>t!==tag);
-    }else{
-      // 無い → 追加
-      w.tags.push(tag);
-    }
+  const words = loadWords();
+
+  const w = words.find(w => w.id === wordId);
+  if(!w) return;
+
+  if(!w.tags) w.tags = [];
+
+  if(w.tags.includes(tag)){
+    // ★すでにある → 削除（OFF）
+    w.tags = w.tags.filter(t => t !== tag);
+  } else {
+    // ★ない → 追加（ON）
+    w.tags.push(tag);
   }
-  save(data);
+
+  saveWords(words);
 }
