@@ -23,17 +23,15 @@ export function drawFolderScreen(parentId = null) {
   currentFolderId = parentId;
   setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
 
-  const folders = getFolderTree(parentId)
+  const folders = (getFolderTree(parentId) || [])
     .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
 
   app.innerHTML = `
     <div class="panel">
       ${parentId !== null ? '<button id="backBtn" class="cyber-btn back-btn">← 戻る</button>' : ''}
 
-      <!-- ★追加ボタン -->
       <button id="showAddFolder" class="mini-btn cyber-btn" style="position:fixed; top:110px; right:10px;">＋</button>
 
-      <!-- ★入力フォーム（初期非表示） -->
       <div id="addFolderForm" style="display:none;">
         <input id="newFolderName" placeholder="フォルダ名">
         <button id="createFolderBtn" class="cyber-btn">追加</button>
@@ -95,7 +93,6 @@ export function drawFolderScreen(parentId = null) {
     list.appendChild(div);
   });
 
-  // ★追加ボタン動作
   app.querySelector("#showAddFolder").onclick = ()=>{
     document.getElementById("addFolderForm").style.display = "block";
   };
@@ -121,16 +118,14 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   currentFolderId = subFolderId;
   const app = document.getElementById("app");
-  const words = getWords(subFolderId);
+  const words = getWords(subFolderId) || [];
 
   app.innerHTML=`
     <div class="panel">
       <button id="backBtn" class="cyber-btn back-btn">← 戻る</button>
 
-      <!-- ★追加ボタン -->
       <button id="showAddWord" class="mini-btn cyber-btn" style="position:fixed; top:110px; right:10px;">＋</button>
 
-      <!-- ★入力フォーム -->
       <div id="addWordForm" style="display:none;">
         <input id="wordInput" placeholder="単語">
         <input id="answerInput" placeholder="意味">
@@ -165,21 +160,22 @@ export function drawWordScreen(subFolderId, parentFolderId){
     div.appendChild(back);
     div.appendChild(note);
 
-    // ★タグ（トグル化）
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
+
+    const tags = w.tags || [];
 
     ["完璧","要復習","苦手"].forEach(tag=>{
       const b=document.createElement("button");
       b.textContent=tag;
       b.className="mini-btn cyber-btn";
 
-      if(w.tags.includes(tag)){
+      if(tags.includes(tag)){
         b.classList.add("active-tag");
       }
 
       b.onclick=()=>{
-        updateWordTags(w.id,tag); // ← toggle前提
+        updateWordTags(w.id,tag);
         setTimeout(()=>drawWordScreen(subFolderId, parentFolderId),0);
       };
 
@@ -205,7 +201,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
-  // ★追加UI
   app.querySelector("#showAddWord").onclick = ()=>{
     document.getElementById("addWordForm").style.display = "block";
   };
