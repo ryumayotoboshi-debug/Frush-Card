@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("🌱 初期データ生成");
     seed();
   }
+  
+  console.log("DATA:", localStorage.getItem("wordAppData"));
 
   // 初期画面描画
   console.log("🎨 描画開始");
