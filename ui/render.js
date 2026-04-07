@@ -15,16 +15,33 @@ function setTitle(text){
 
 // ---------------- フォルダ画面 ----------------
 export function drawFolderScreen(parentId = null) {
+  console.log("📁 drawFolderScreen start", parentId);
+
   document.body.className = "no-scroll";
 
   const app = document.getElementById("app");
-  if (!app) return;
+  if (!app) {
+    console.error("❌ #app が見つかりません");
+    return;
+  }
 
   currentFolderId = parentId;
   setTitle(parentId === null ? "単語帳" : "フォルダ一覧");
 
-  const folders = (getFolderTree(parentId) || [])
-    .sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
+  // 🔥 安全にフォルダ取得
+  let folders = [];
+  try {
+    const result = getFolderTree(parentId);
+    console.log("📂 getFolderTree result:", result);
+
+    if (Array.isArray(result)) {
+      folders = result.sort((a,b)=> (b.lastStudied||0)-(a.lastStudied||0));
+    } else {
+      console.warn("⚠️ フォルダデータが配列ではない", result);
+    }
+  } catch(e) {
+    console.error("❌ getFolderTree エラー", e);
+  }
 
   app.innerHTML = `
     <div class="panel">
@@ -43,7 +60,10 @@ export function drawFolderScreen(parentId = null) {
 
   const list = app.querySelector("#list");
 
+  // 🔥 フォルダ描画（安全）
   folders.forEach(f=>{
+    if (!f) return;
+
     const div = document.createElement("div");
     div.className = "folder-item neon-box";
 
@@ -56,7 +76,7 @@ export function drawFolderScreen(parentId = null) {
     };
 
     const nameBtn = document.createElement("button");
-    nameBtn.textContent = f.name;
+    nameBtn.textContent = f.name || "（無名フォルダ）";
     nameBtn.className = "folder-name";
 
     const actions = document.createElement("div");
@@ -93,7 +113,7 @@ export function drawFolderScreen(parentId = null) {
     list.appendChild(div);
   });
 
-  // ★追加ボタン（安全化）
+  // ---------------- UI操作 ----------------
   const showBtn = app.querySelector("#showAddFolder");
   const form = app.querySelector("#addFolderForm");
 
@@ -123,13 +143,34 @@ export function drawFolderScreen(parentId = null) {
 
 // ---------------- 単語画面 ----------------
 export function drawWordScreen(subFolderId, parentFolderId){
+  console.log("📝 drawWordScreen start", subFolderId);
+
   document.body.className = "word-screen";
 
   setTitle("単語一覧");
 
   currentFolderId = subFolderId;
   const app = document.getElementById("app");
-  const words = getWords(subFolderId) || [];
+
+  if (!app) {
+    console.error("❌ #app が見つかりません");
+    return;
+  }
+
+  // 🔥 安全に単語取得
+  let words = [];
+  try {
+    const result = getWords(subFolderId);
+    console.log("📖 getWords result:", result);
+
+    if (Array.isArray(result)) {
+      words = result;
+    } else {
+      console.warn("⚠️ 単語データが配列ではない", result);
+    }
+  } catch(e) {
+    console.error("❌ getWords エラー", e);
+  }
 
   app.innerHTML=`
     <div class="panel">
@@ -153,16 +194,18 @@ export function drawWordScreen(subFolderId, parentFolderId){
   const list = app.querySelector("#wordList");
 
   words.forEach(w=>{
+    if (!w) return;
+
     const div=document.createElement("div");
     div.className="word-item neon-box";
 
     const front = document.createElement("div");
-    front.textContent = w.front;
+    front.textContent = w.front || "";
     front.style.fontSize = "18px";
     front.style.borderBottom = "1px solid #0ff";
 
     const back = document.createElement("div");
-    back.textContent = w.back;
+    back.textContent = w.back || "";
 
     const note = document.createElement("div");
     note.textContent = w.note || "";
@@ -171,7 +214,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
     div.appendChild(back);
     div.appendChild(note);
 
-    // ★タグ安全化
     const tagDiv=document.createElement("div");
     tagDiv.className="tag-container";
 
@@ -213,7 +255,6 @@ export function drawWordScreen(subFolderId, parentFolderId){
 
   app.querySelector("#backBtn").onclick = ()=> drawFolderScreen(parentFolderId);
 
-  // ★追加UI（安全化）
   const showWordBtn = app.querySelector("#showAddWord");
   const wordForm = app.querySelector("#addWordForm");
 
