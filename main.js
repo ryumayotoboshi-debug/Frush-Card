@@ -5,17 +5,27 @@ import { drawFolderScreen } from "./ui/render.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("✅ main.js 起動");
+  console.log("① DOM読み込み");
 
-  // 初回のみデータ生成
-  if (!localStorage.getItem("wordAppData")) {
-    console.log("🌱 初期データ生成");
+  try {
+    localStorage.removeItem("wordAppData");
     seed();
+    console.log("② seed成功");
+  } catch(e){
+    console.error("❌ seed失敗", e);
   }
-  
-  console.log("DATA:", localStorage.getItem("wordAppData"));
 
-  // 初期画面描画
-  console.log("🎨 描画開始");
-  drawFolderScreen(null);
+  try {
+    console.log("DATA:", localStorage.getItem("wordAppData"));
+  } catch(e){
+    console.error("❌ storage失敗", e);
+  }
+
+  try {
+    drawFolderScreen(null);
+    console.log("③ render呼び出し成功");
+  } catch(e){
+    console.error("❌ render失敗", e);
+  }
+
 });
