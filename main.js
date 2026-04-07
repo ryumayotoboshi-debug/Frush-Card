@@ -1,7 +1,4 @@
 "use strict";
 
-console.log("🔥 main.js 単体起動");
-
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM OK");
-});
+alert("🔥 main.js は動いています");
+console.log("🔥 main.js 動作中");
