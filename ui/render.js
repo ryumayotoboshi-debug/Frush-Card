@@ -73,23 +73,32 @@ export function drawFolderScreen() {
 }
 
 
+"use strict";
+
+import { startQuiz } from "../features/quiz.js";
+
 export function renderApp() {
   const app = document.getElementById("app");
   app.innerHTML = "";
 
+  // タイトル
   const title = document.createElement("h1");
   title.textContent = "単語帳";
   app.appendChild(title);
 
-  // クイズボタン
+  // クイズ開始ボタン
   const quizBtn = document.createElement("button");
   quizBtn.textContent = "クイズ開始";
   quizBtn.onclick = startQuiz;
   app.appendChild(quizBtn);
 
-  // クイズ表示領域
+  // ★重要：入力欄は作らない
+  // （ここが残っていると入力式のままになります）
+
+  // クイズ表示エリア（4択専用）
   const quizArea = document.createElement("div");
   quizArea.id = "quiz";
+  quizArea.style.marginTop = "20px";
   app.appendChild(quizArea);
 }
 
