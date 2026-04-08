@@ -1,6 +1,11 @@
 "use strict";
 
-alert("🔥 main.js は動いています");
-console.log("🔥 main.js 動作中");
+import { drawFolderScreen } from "./ui/render.js";
 
-console.log(document.getElementById("app"));
+console.log("🔥 main.js 読み込み");
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM 準備完了");
+
+  drawFolderScreen();
+});
