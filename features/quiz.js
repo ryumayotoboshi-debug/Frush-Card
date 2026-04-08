@@ -2,45 +2,77 @@
 
 import { load } from "../data/storage.js";
 
-let currentQuiz = null;
+let quizWords = [];
+let currentIndex = 0;
 
-export function generateQuiz() {
+export function startQuiz() {
   const data = load();
-  const words = data.words;
 
-  if (words.length < 4) {
+  if (!data.words || data.words.length < 4) {
     alert("単語が4つ以上必要です");
-    return null;
+    return;
   }
 
-  // 正解をランダム選択
-  const correct = words[Math.floor(Math.random() * words.length)];
+  // シャッフルして使用
+  quizWords = shuffle([...data.words]);
+  currentIndex = 0;
 
-  // ダミー選択
-  const others = words.filter(w => w.id !== correct.id);
-  shuffle(others);
-
-  const choices = [correct, ...others.slice(0, 3)];
-  shuffle(choices);
-
-  currentQuiz = {
-    question: correct.front,
-    answer: correct.back,
-    choices: choices.map(c => c.back)
-  };
-
-  return currentQuiz;
+  showQuestion();
 }
 
-export function checkAnswer(choice) {
-  if (!currentQuiz) return false;
-  return choice === currentQuiz.answer;
+function showQuestion() {
+  const container = document.getElementById("quiz");
+  container.innerHTML = "";
+
+  if (currentIndex >= quizWords.length) {
+    container.innerHTML = "<p>終了しました</p>";
+    return;
+  }
+
+  const correct = quizWords[currentIndex];
+
+  // ダミー選択肢を作る
+  const choices = createChoices(correct);
+
+  const question = document.createElement("h3");
+  question.textContent = correct.front;
+
+  container.appendChild(question);
+
+  choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice.back;
+
+    btn.onclick = () => {
+      if (choice.id === correct.id) {
+        alert("正解！");
+      } else {
+        alert(`不正解… 正解は「${correct.back}」`);
+      }
+      currentIndex++;
+      showQuestion();
+    };
+
+    container.appendChild(btn);
+  });
 }
 
-// シャッフル
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
+function createChoices(correct) {
+  const data = load();
+
+  const others = data.words.filter(w => w.id !== correct.id);
+  const shuffled = shuffle(others).slice(0, 3);
+
+  const choices = shuffle([correct, ...shuffled]);
+
+  return choices;
+}
+
+// Fisher-Yatesシャッフル
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [array[i], array[j]] = [array[j], array[i]];
   }
+  return array;
 }
