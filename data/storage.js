@@ -1,36 +1,17 @@
 "use strict";
 
-const KEY = "wordAppData";
-
-export function load(){
-  const raw = localStorage.getItem(KEY);
-
-  if(!raw){
-    return {
-      folders: [],
-      words: []
-    };
-  }
-
-  try {
-    const data = JSON.parse(raw);
-
-    // 🔥 不完全データ対策
-    return {
-      folders: Array.isArray(data.folders) ? data.folders : [],
-      words: Array.isArray(data.words) ? data.words : []
-    };
-
-  } catch(e){
-    console.error("❌ JSON parse エラー", e);
-
-    return {
-      folders: [],
-      words: []
-    };
-  }
+// 保存
+export function save(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-export function save(data){
-  localStorage.setItem(KEY, JSON.stringify(data));
+// 取得
+export function load(key) {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
+}
+
+// 初期化チェック
+export function exists(key) {
+  return localStorage.getItem(key) !== null;
 }
