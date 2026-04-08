@@ -3,6 +3,8 @@
 import { load, save } from "../data/storage.js";
 
 let currentFolderId = null;
+let quizWords = [];
+let currentQuizIndex = 0;
 
 // =======================
 // フォルダ一覧
@@ -34,11 +36,9 @@ export function drawFolderScreen() {
     <button id="addBtn">追加</button>
   `;
 
-  // 追加
   document.getElementById("addBtn").addEventListener("click", () => {
     const input = document.getElementById("folderInput");
     const name = input.value.trim();
-
     if (!name) return alert("フォルダ名を入力してください");
 
     folders.push({
@@ -51,20 +51,18 @@ export function drawFolderScreen() {
     drawFolderScreen();
   });
 
-  // 削除
   document.querySelectorAll(".deleteBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       if (!confirm("削除しますか？")) return;
 
       const id = btn.dataset.id;
       const newFolders = folders.filter(f => f.id !== id);
-
       save("folders", newFolders);
+
       drawFolderScreen();
     });
   });
 
-  // フォルダクリック
   document.querySelectorAll(".folderName").forEach(el => {
     el.addEventListener("click", () => {
       currentFolderId = el.dataset.id;
@@ -83,8 +81,6 @@ function drawWordScreen() {
   const words = load("words") || [];
 
   const folder = folders.find(f => f.id === currentFolderId);
-
-  // フォルダに属する単語だけ抽出
   const filteredWords = words.filter(w => w.folderId === currentFolderId);
 
   app.innerHTML = `
@@ -92,13 +88,13 @@ function drawWordScreen() {
 
     <h2>${folder ? folder.name : ""}</h2>
 
+    <button id="quizBtn">クイズ開始</button>
+
     <h3>単語一覧</h3>
     <ul>
       ${filteredWords.map(w => `
         <li>
           <strong>${w.front}</strong> - ${w.back}
-          <br>
-          <small>${w.note || ""}</small>
           <button data-id="${w.id}" class="deleteWordBtn">削除</button>
         </li>
       `).join("")}
@@ -107,9 +103,9 @@ function drawWordScreen() {
     <hr>
 
     <h3>単語追加</h3>
-    <input id="frontInput" placeholder="表（英語など）" style="font-size:16px;"><br>
-    <input id="backInput" placeholder="裏（日本語など）" style="font-size:16px;"><br>
-    <input id="noteInput" placeholder="メモ（任意）" style="font-size:16px;"><br>
+    <input id="frontInput" placeholder="表" style="font-size:16px;"><br>
+    <input id="backInput" placeholder="裏" style="font-size:16px;"><br>
+    <input id="noteInput" placeholder="メモ" style="font-size:16px;"><br>
     <button id="addWordBtn">追加</button>
   `;
 
@@ -119,15 +115,25 @@ function drawWordScreen() {
     drawFolderScreen();
   });
 
+  // クイズ開始
+  document.getElementById("quizBtn").addEventListener("click", () => {
+    if (filteredWords.length === 0) {
+      return alert("単語がありません");
+    }
+
+    quizWords = [...filteredWords].sort(() => Math.random() - 0.5);
+    currentQuizIndex = 0;
+
+    drawQuizScreen();
+  });
+
   // 単語追加
   document.getElementById("addWordBtn").addEventListener("click", () => {
     const front = document.getElementById("frontInput").value.trim();
     const back = document.getElementById("backInput").value.trim();
     const note = document.getElementById("noteInput").value.trim();
 
-    if (!front || !back) {
-      return alert("表と裏は必須です");
-    }
+    if (!front || !back) return alert("表と裏は必須です");
 
     const words = load("words") || [];
 
@@ -140,7 +146,6 @@ function drawWordScreen() {
     });
 
     save("words", words);
-
     drawWordScreen();
   });
 
@@ -151,11 +156,60 @@ function drawWordScreen() {
 
       const id = btn.dataset.id;
       const words = load("words") || [];
-
       const newWords = words.filter(w => w.id !== id);
-      save("words", newWords);
 
+      save("words", newWords);
       drawWordScreen();
     });
+  });
+}
+
+// =======================
+// クイズ画面
+// =======================
+function drawQuizScreen() {
+  const app = document.getElementById("app");
+
+  if (currentQuizIndex >= quizWords.length) {
+    app.innerHTML = `
+      <h2>終了！</h2>
+      <button id="backBtn">戻る</button>
+    `;
+
+    document.getElementById("backBtn").addEventListener("click", drawWordScreen);
+    return;
+  }
+
+  const word = quizWords[currentQuizIndex];
+
+  app.innerHTML = `
+    <h2>クイズ (${currentQuizIndex + 1}/${quizWords.length})</h2>
+
+    <p><strong>${word.front}</strong></p>
+
+    <input id="answerInput" placeholder="答えを入力" style="font-size:16px;">
+    <button id="answerBtn">回答</button>
+
+    <p id="result"></p>
+
+    <button id="nextBtn" style="display:none;">次へ</button>
+  `;
+
+  document.getElementById("answerBtn").addEventListener("click", () => {
+    const input = document.getElementById("answerInput").value.trim();
+    const result = document.getElementById("result");
+
+    if (input === word.back) {
+      result.textContent = "✅ 正解！";
+    } else {
+      result.textContent = `❌ 不正解（正解: ${word.back}）`;
+    }
+
+    document.getElementById("nextBtn").style.display = "inline";
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    currentQuizIndex++;
+    drawQuizScreen();
   });
 }
