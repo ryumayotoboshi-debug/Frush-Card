@@ -1,78 +1,46 @@
 "use strict";
-import { getWords } from "./cards.js";
-import { drawWordScreen } from "../ui/render.js";
-import { load, save } from "../data/storage.js";
 
-export function startQuiz(folderId){
-  const words = getWords(folderId);
-  if(words.length < 1){ alert("単語がありません"); return; }
+import { load } from "../data/storage.js";
 
-  const app = document.getElementById("app");
-  let index = 0;
+let currentQuiz = null;
 
-  function shuffle(arr){
-    return arr.sort(()=>Math.random()-0.5);
+export function generateQuiz() {
+  const data = load();
+  const words = data.words;
+
+  if (words.length < 4) {
+    alert("単語が4つ以上必要です");
+    return null;
   }
 
-  function updateLastStudied(){
-    const data = load();
-    const f = data.folders.find(f=>f.id===folderId);
-    if(f) f.lastStudied = Date.now();
-    save(data);
+  // 正解をランダム選択
+  const correct = words[Math.floor(Math.random() * words.length)];
+
+  // ダミー選択
+  const others = words.filter(w => w.id !== correct.id);
+  shuffle(others);
+
+  const choices = [correct, ...others.slice(0, 3)];
+  shuffle(choices);
+
+  currentQuiz = {
+    question: correct.front,
+    answer: correct.back,
+    choices: choices.map(c => c.back)
+  };
+
+  return currentQuiz;
+}
+
+export function checkAnswer(choice) {
+  if (!currentQuiz) return false;
+  return choice === currentQuiz.answer;
+}
+
+// シャッフル
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-
-  function getChoices(correctWord){
-    const others = words.filter(w => w.id !== correctWord.id);
-    const wrongs = shuffle(others).slice(0,3).map(w=>w.back);
-    return shuffle([correctWord.back, ...wrongs]);
-  }
-
-  function showQuestion(){
-    if(index >= words.length){
-      updateLastStudied(); // ★追加
-      alert("終了");
-      drawWordScreen(folderId); // ★修正
-      return;
-    }
-
-    const w = words[index];
-    const choices = getChoices(w);
-
-    app.innerHTML = `
-      <div style="padding:0 10px">
-        <h2>単語クイズ</h2>
-        <div style="margin-bottom:16px">${w.front}</div>
-        <div id="choices"></div>
-        <button id="backBtn">戻る</button>
-      </div>
-    `;
-
-    const choicesDiv = app.querySelector("#choices");
-
-    choices.forEach(choice=>{
-      const btn = document.createElement("button");
-      btn.textContent = choice;
-      btn.style.display = "block";
-      btn.style.marginBottom = "8px";
-      btn.style.width = "100%";
-
-      btn.onclick = ()=>{
-        if(choice === w.back){
-          w.stats.correct++;
-          alert("正解");
-        } else {
-          w.stats.wrong++;
-          alert(`不正解\n正解: ${w.back}`);
-        }
-        index++;
-        showQuestion();
-      };
-
-      choicesDiv.appendChild(btn);
-    });
-
-    app.querySelector("#backBtn").onclick = ()=> drawWordScreen(folderId); // ★修正
-  }
-
-  showQuestion();
 }
