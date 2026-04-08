@@ -1,6 +1,7 @@
 "use strict";
 
 import { load, save } from "../data/storage.js";
+import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 let quizWords = [];
@@ -70,6 +71,28 @@ export function drawFolderScreen() {
     });
   });
 }
+
+
+export function renderApp() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  const title = document.createElement("h1");
+  title.textContent = "単語帳";
+  app.appendChild(title);
+
+  // クイズボタン
+  const quizBtn = document.createElement("button");
+  quizBtn.textContent = "クイズ開始";
+  quizBtn.onclick = startQuiz;
+  app.appendChild(quizBtn);
+
+  // クイズ表示領域
+  const quizArea = document.createElement("div");
+  quizArea.id = "quiz";
+  app.appendChild(quizArea);
+}
+
 
 // =======================
 // 単語画面
