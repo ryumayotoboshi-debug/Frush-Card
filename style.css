@@ -1,193 +1,118 @@
+/* =========================
+   全体ベース
+========================= */
 body {
-  font-family: 'Orbitron', sans-serif;
-  padding: 10px;
-  max-width: 480px;
-  margin: 0 auto;
-  background: radial-gradient(circle at top, #0a0a0a, #000);
-  color: #0ff;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: #e0f7ff;
+  margin: 0;
+  padding: 16px;
 }
 
-/* タイトル */
-#mainTitle {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #fff;
-  text-shadow:
-    0 0 5px #0ff,
-    0 0 10px #0ff,
-    0 0 20px #0ff;
+/* =========================
+   タイトル
+========================= */
+h1 {
+  font-size: 32px;
+  margin-bottom: 16px;
 }
 
-/* パネル */
-.panel {
-  padding-top: 80px;
+h2 {
+  font-size: 26px;
+  margin: 12px 0;
 }
 
-/* 戻るボタン（下げて固定） */
-.back-btn {
-  position: fixed;
-  top: 110px;
-  left: 10px;
-  z-index: 1000;
-}
-
-/* ネオン枠（復旧） */
-.neon-box {
-  border: 1px solid #0ff;
-  box-shadow: 0 0 6px #0ff;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* ボタン */
-.cyber-btn {
-  background: transparent;
-  color: #0ff;
-  border: 1px solid #0ff;
-  transition: 0.2s;
-}
-
-.cyber-btn:hover {
-  background: #0ff;
-  color: #000;
-  box-shadow: 0 0 10px #0ff;
-}
-
-/* 小ボタン */
-.mini-btn {
-  font-size: 12px;
-  padding: 4px 6px;
-}
-
-/* フォルダ */
-.folder-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.folder-actions {
-  display: flex;
-  gap: 6px;
-}
-
-/* ★ここが最重要：小さい枠を完全消去 */
-.folder-name {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  background: transparent;
-  color: #0ff;
+h3 {
   font-size: 20px;
+  margin: 10px 0;
+}
+
+/* =========================
+   リスト
+========================= */
+ul {
+  list-style: none;
   padding: 0;
 }
 
-/* 単語 */
-.word-item {
-  margin-bottom: 10px;
+li {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #111;
+  border-radius: 10px;
 }
 
-/* タグ */
-.tag-display {
-  font-size: 12px;
+/* =========================
+   フォルダ名
+========================= */
+.folderName {
+  font-size: 20px;
+  font-weight: bold;
 }
 
-/* タグ選択 */
-.active-tag {
-  background: #ff00ff;
+/* =========================
+   ボタン（全体拡大）
+========================= */
+button {
+  font-size: 18px;
+  padding: 12px 16px;
+  margin-top: 6px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 10px;
+  background: #0ff;
+  color: #000;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* =========================
+   削除ボタン
+========================= */
+.deleteBtn,
+.deleteWordBtn {
+  background: #ff4d6d;
   color: #fff;
-  box-shadow: 0 0 8px #ff00ff;
 }
 
-/* 入力欄 */
+/* =========================
+   入力欄（重要：16px以上）
+========================= */
 input {
-  background: #000;
-  color: #0ff;
-  border: 1px solid #0ff;
+  width: 95%;
+  font-size: 18px;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: none;
 }
 
-/* スクロール制御 */
-body.no-scroll {
-  overflow: hidden;
-}
-
-body.word-screen {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-/* ★単語カードを基準にする */
-.word-item {
-  position: relative; /* ★追加 */
+/* =========================
+   クイズ選択肢
+========================= */
+#choices button {
+  display: block;
+  width: 100%;
   margin-bottom: 10px;
-  padding-bottom: 30px; /* ★ボタン被り防止 */
 }
 
-/* ★タグ：右上固定 */
-.tag-container {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 4px;
+/* =========================
+   結果表示
+========================= */
+#result {
+  font-size: 20px;
+  margin-top: 12px;
 }
 
-/* ★削除ボタン：右下固定 */
-.delete-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
+/* =========================
+   戻るボタン
+========================= */
+#backBtn {
+  font-size: 18px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
 }
-
-.word-item {
-  position: relative;
-  padding-bottom: 30px;
-}
-
-.tag-container {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 4px;
-}
-
-.delete-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-}
-
-/* 新規フォルダ追加入力 */
-#newName {
-  font-size: 16px; /* iPhone自動ズーム防止 */
-  padding: 4px 6px;
-  width: calc(100% - 12px);
-  box-sizing: border-box;
-}
-
-/* 新規単語追加入力 */
-#wordInput,
-#answerInput,
-#explanationInput {
-  font-size: 16px; /* iPhone自動ズーム防止 */
-  padding: 4px 6px;
-  width: calc(100% - 12px);
-  box-sizing: border-box;
-}
-
-/* 単語カード */
-.word-front { font-size: 20px; font-weight:bold; margin-bottom:2px; }
-.word-back { font-size:18px; margin-bottom:2px; }
-.word-note { font-size:14px; color:#0ff; margin-bottom:4px; }
-
-hr { border: 0; border-bottom:1px solid #0ff; margin:4px 0; }
-
-/* モーダル内入力欄 */
-.modal-box input { font-size:16px; width:100%; margin-bottom:6px; }
-
-/* 大ボタン */
-.big-btn { font-size:18px; padding:8px 12px; }
-.floating-add { display:block; margin:10px auto 0 auto; }
-.floating-quiz { display:block; margin:10px auto 0 auto; }
