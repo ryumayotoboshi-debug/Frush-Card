@@ -1,7 +1,6 @@
 "use strict";
 
 import { load, save } from "../data/storage.js";
-import { startQuiz } from "../features/quiz.js";
 
 let currentFolderId = null;
 let quizWords = [];
@@ -37,6 +36,7 @@ export function drawFolderScreen() {
     <button id="addBtn">追加</button>
   `;
 
+  // 追加
   document.getElementById("addBtn").addEventListener("click", () => {
     const input = document.getElementById("folderInput");
     const name = input.value.trim();
@@ -52,6 +52,7 @@ export function drawFolderScreen() {
     drawFolderScreen();
   });
 
+  // 削除（confirmあり）
   document.querySelectorAll(".deleteBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       if (!confirm("削除しますか？")) return;
@@ -64,6 +65,7 @@ export function drawFolderScreen() {
     });
   });
 
+  // フォルダクリック
   document.querySelectorAll(".folderName").forEach(el => {
     el.addEventListener("click", () => {
       currentFolderId = el.dataset.id;
@@ -71,37 +73,6 @@ export function drawFolderScreen() {
     });
   });
 }
-
-
-"use strict";
-
-import { startQuiz } from "../features/quiz.js";
-
-export function renderApp() {
-  const app = document.getElementById("app");
-  app.innerHTML = "";
-
-  // タイトル
-  const title = document.createElement("h1");
-  title.textContent = "単語帳";
-  app.appendChild(title);
-
-  // クイズ開始ボタン
-  const quizBtn = document.createElement("button");
-  quizBtn.textContent = "クイズ開始";
-  quizBtn.onclick = startQuiz;
-  app.appendChild(quizBtn);
-
-  // ★重要：入力欄は作らない
-  // （ここが残っていると入力式のままになります）
-
-  // クイズ表示エリア（4択専用）
-  const quizArea = document.createElement("div");
-  quizArea.id = "quiz";
-  quizArea.style.marginTop = "20px";
-  app.appendChild(quizArea);
-}
-
 
 // =======================
 // 単語画面
@@ -149,8 +120,8 @@ function drawWordScreen() {
 
   // クイズ開始
   document.getElementById("quizBtn").addEventListener("click", () => {
-    if (filteredWords.length === 0) {
-      return alert("単語がありません");
+    if (filteredWords.length < 4) {
+      return alert("4択クイズには単語が4つ以上必要です");
     }
 
     quizWords = [...filteredWords].sort(() => Math.random() - 0.5);
@@ -197,7 +168,7 @@ function drawWordScreen() {
 }
 
 // =======================
-// クイズ画面
+// クイズ画面（4択）
 // =======================
 function drawQuizScreen() {
   const app = document.getElementById("app");
@@ -207,37 +178,49 @@ function drawQuizScreen() {
       <h2>終了！</h2>
       <button id="backBtn">戻る</button>
     `;
-
     document.getElementById("backBtn").addEventListener("click", drawWordScreen);
     return;
   }
 
-  const word = quizWords[currentQuizIndex];
+  const correct = quizWords[currentQuizIndex];
+
+  // ダミー選択肢生成
+  const allWords = load("words") || [];
+  const others = allWords.filter(w => w.id !== correct.id);
+
+  const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 3);
+  const choices = [correct, ...shuffled].sort(() => Math.random() - 0.5);
 
   app.innerHTML = `
     <h2>クイズ (${currentQuizIndex + 1}/${quizWords.length})</h2>
 
-    <p><strong>${word.front}</strong></p>
+    <p><strong>${correct.front}</strong></p>
 
-    <input id="answerInput" placeholder="答えを入力" style="font-size:16px;">
-    <button id="answerBtn">回答</button>
+    <div id="choices"></div>
 
     <p id="result"></p>
-
     <button id="nextBtn" style="display:none;">次へ</button>
   `;
 
-  document.getElementById("answerBtn").addEventListener("click", () => {
-    const input = document.getElementById("answerInput").value.trim();
-    const result = document.getElementById("result");
+  const choicesDiv = document.getElementById("choices");
 
-    if (input === word.back) {
-      result.textContent = "✅ 正解！";
-    } else {
-      result.textContent = `❌ 不正解（正解: ${word.back}）`;
-    }
+  choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.textContent = choice.back;
 
-    document.getElementById("nextBtn").style.display = "inline";
+    btn.onclick = () => {
+      const result = document.getElementById("result");
+
+      if (choice.id === correct.id) {
+        result.textContent = "✅ 正解！";
+      } else {
+        result.textContent = `❌ 不正解（正解: ${correct.back}）`;
+      }
+
+      document.getElementById("nextBtn").style.display = "inline";
+    };
+
+    choicesDiv.appendChild(btn);
   });
 
   document.getElementById("nextBtn").addEventListener("click", () => {
