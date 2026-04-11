@@ -3,23 +3,31 @@
 import { load, save } from "../data/storage.js";
 
 let currentFolderId = null;
+let currentParentId = null;
 let quizWords = [];
 let currentQuizIndex = 0;
 
 // =======================
-// フォルダ一覧
+// フォルダ一覧（2階層対応）
 // =======================
-export function drawFolderScreen() {
+export function drawFolderScreen(parentId = null) {
   const app = document.getElementById("app");
   if (!app) return;
 
+  currentParentId = parentId;
+
   const folders = load("folders") || [];
 
+  // 表示対象
+  const filtered = folders.filter(f => f.parentId === parentId);
+
   app.innerHTML = `
-    <h2>フォルダ一覧</h2>
+    ${parentId !== null ? `<button id="backBtn">← 戻る</button>` : ""}
+
+    <h2>${parentId === null ? "フォルダ一覧" : "サブフォルダ一覧"}</h2>
 
     <ul>
-      ${folders.map(f => `
+      ${filtered.map(f => `
         <li>
           <span class="folderName" data-id="${f.id}" style="cursor:pointer;">
             ${f.name}
@@ -31,51 +39,66 @@ export function drawFolderScreen() {
 
     <hr>
 
-    <h3>フォルダ追加</h3>
-    <input type="text" id="folderInput" placeholder="フォルダ名を入力" style="font-size:16px;">
+    <h3>${parentId === null ? "フォルダ追加" : "サブフォルダ追加"}</h3>
+    <input id="folderInput" placeholder="名前を入力" style="font-size:16px;">
     <button id="addBtn">追加</button>
   `;
+
+  // 戻る
+  document.getElementById("backBtn")?.addEventListener("click", () => {
+    drawFolderScreen(null);
+  });
 
   // 追加
   document.getElementById("addBtn").addEventListener("click", () => {
     const input = document.getElementById("folderInput");
     const name = input.value.trim();
-    if (!name) return alert("フォルダ名を入力してください");
+
+    if (!name) return alert("名前を入力してください");
 
     folders.push({
       id: crypto.randomUUID(),
       name,
-      parentId: null
+      parentId: parentId // ★ここがポイント
     });
 
     save("folders", folders);
-    drawFolderScreen();
+    drawFolderScreen(parentId);
   });
 
-  // 削除（confirmあり）
+  // 削除
   document.querySelectorAll(".deleteBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       if (!confirm("削除しますか？")) return;
 
       const id = btn.dataset.id;
+
       const newFolders = folders.filter(f => f.id !== id);
       save("folders", newFolders);
 
-      drawFolderScreen();
+      drawFolderScreen(parentId);
     });
   });
 
-  // フォルダクリック
+  // クリック
   document.querySelectorAll(".folderName").forEach(el => {
     el.addEventListener("click", () => {
-      currentFolderId = el.dataset.id;
-      drawWordScreen();
+      const id = el.dataset.id;
+
+      // 親フォルダならサブフォルダへ
+      if (parentId === null) {
+        drawFolderScreen(id);
+      } else {
+        // サブフォルダなら単語画面へ
+        currentFolderId = id;
+        drawWordScreen();
+      }
     });
   });
 }
 
 // =======================
-// 単語画面
+// 単語画面（サブフォルダのみ）
 // =======================
 function drawWordScreen() {
   const app = document.getElementById("app");
@@ -112,10 +135,9 @@ function drawWordScreen() {
     <button id="addWordBtn">追加</button>
   `;
 
-  // 戻る
+  // 戻る（サブフォルダ一覧へ）
   document.getElementById("backBtn").addEventListener("click", () => {
-    currentFolderId = null;
-    drawFolderScreen();
+    drawFolderScreen(currentParentId);
   });
 
   // クイズ開始
@@ -152,13 +174,12 @@ function drawWordScreen() {
     drawWordScreen();
   });
 
-  // 単語削除
+  // 削除
   document.querySelectorAll(".deleteWordBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       if (!confirm("削除しますか？")) return;
 
       const id = btn.dataset.id;
-      const words = load("words") || [];
       const newWords = words.filter(w => w.id !== id);
 
       save("words", newWords);
@@ -168,7 +189,7 @@ function drawWordScreen() {
 }
 
 // =======================
-// クイズ画面（4択）
+// クイズ（そのまま）
 // =======================
 function drawQuizScreen() {
   const app = document.getElementById("app");
@@ -184,20 +205,15 @@ function drawQuizScreen() {
 
   const correct = quizWords[currentQuizIndex];
 
-  // ダミー選択肢生成
   const allWords = load("words") || [];
   const others = allWords.filter(w => w.id !== correct.id);
-
-  const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 3);
-  const choices = [correct, ...shuffled].sort(() => Math.random() - 0.5);
+  const choices = [correct, ...others.sort(() => Math.random() - 0.5).slice(0, 3)]
+    .sort(() => Math.random() - 0.5);
 
   app.innerHTML = `
     <h2>クイズ (${currentQuizIndex + 1}/${quizWords.length})</h2>
-
     <p><strong>${correct.front}</strong></p>
-
     <div id="choices"></div>
-
     <p id="result"></p>
     <button id="nextBtn" style="display:none;">次へ</button>
   `;
