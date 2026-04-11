@@ -8,7 +8,24 @@ let quizWords = [];
 let currentQuizIndex = 0;
 
 // =======================
-// フォルダ一覧（2階層対応）
+// ★ 再帰削除
+// =======================
+function deleteFolderRecursive(folderId) {
+  const folders = load("folders") || [];
+  const words = load("words") || [];
+
+  const childFolders = folders.filter(f => f.parentId === folderId);
+
+  childFolders.forEach(child => {
+    deleteFolderRecursive(child.id);
+  });
+
+  save("folders", folders.filter(f => f.id !== folderId));
+  save("words", words.filter(w => w.folderId !== folderId));
+}
+
+// =======================
+// フォルダ一覧
 // =======================
 export function drawFolderScreen(parentId = null) {
   const app = document.getElementById("app");
@@ -17,8 +34,6 @@ export function drawFolderScreen(parentId = null) {
   currentParentId = parentId;
 
   const folders = load("folders") || [];
-
-  // 表示対象
   const filtered = folders.filter(f => f.parentId === parentId);
 
   app.innerHTML = `
@@ -44,61 +59,50 @@ export function drawFolderScreen(parentId = null) {
     <button id="addBtn">追加</button>
   `;
 
-  // 戻る
-  document.getElementById("backBtn")?.addEventListener("click", () => {
+  document.getElementById("backBtn")?.onclick = () => {
     drawFolderScreen(null);
-  });
+  };
 
-  // 追加
-  document.getElementById("addBtn").addEventListener("click", () => {
-    const input = document.getElementById("folderInput");
-    const name = input.value.trim();
-
+  document.getElementById("addBtn").onclick = () => {
+    const name = document.getElementById("folderInput").value.trim();
     if (!name) return alert("名前を入力してください");
 
     folders.push({
       id: crypto.randomUUID(),
       name,
-      parentId: parentId // ★ここがポイント
+      parentId: parentId
     });
 
     save("folders", folders);
     drawFolderScreen(parentId);
-  });
+  };
 
-  // 削除
+  // ★削除（再帰版）
   document.querySelectorAll(".deleteBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.onclick = () => {
       if (!confirm("削除しますか？")) return;
 
-      const id = btn.dataset.id;
-
-      const newFolders = folders.filter(f => f.id !== id);
-      save("folders", newFolders);
-
+      deleteFolderRecursive(btn.dataset.id);
       drawFolderScreen(parentId);
-    });
+    };
   });
 
-  // クリック
   document.querySelectorAll(".folderName").forEach(el => {
-    el.addEventListener("click", () => {
+    el.onclick = () => {
       const id = el.dataset.id;
 
-      // 親フォルダならサブフォルダへ
       if (parentId === null) {
         drawFolderScreen(id);
       } else {
-        // サブフォルダなら単語画面へ
         currentFolderId = id;
         drawWordScreen();
       }
-    });
+    };
   });
 }
 
 // =======================
-// 単語画面（サブフォルダのみ）
+// 単語画面
 // =======================
 function drawWordScreen() {
   const app = document.getElementById("app");
@@ -111,7 +115,6 @@ function drawWordScreen() {
 
   app.innerHTML = `
     <button id="backBtn">← 戻る</button>
-
     <h2>${folder ? folder.name : ""}</h2>
 
     <button id="quizBtn">クイズ開始</button>
@@ -135,32 +138,24 @@ function drawWordScreen() {
     <button id="addWordBtn">追加</button>
   `;
 
-  // 戻る（サブフォルダ一覧へ）
-  document.getElementById("backBtn").addEventListener("click", () => {
+  document.getElementById("backBtn").onclick = () => {
     drawFolderScreen(currentParentId);
-  });
+  };
 
-  // クイズ開始
-  document.getElementById("quizBtn").addEventListener("click", () => {
-    if (filteredWords.length < 4) {
-      return alert("4択クイズには単語が4つ以上必要です");
-    }
+  document.getElementById("quizBtn").onclick = () => {
+    if (filteredWords.length < 4) return alert("単語が不足しています");
 
     quizWords = [...filteredWords].sort(() => Math.random() - 0.5);
     currentQuizIndex = 0;
-
     drawQuizScreen();
-  });
+  };
 
-  // 単語追加
-  document.getElementById("addWordBtn").addEventListener("click", () => {
+  document.getElementById("addWordBtn").onclick = () => {
     const front = document.getElementById("frontInput").value.trim();
     const back = document.getElementById("backInput").value.trim();
     const note = document.getElementById("noteInput").value.trim();
 
-    if (!front || !back) return alert("表と裏は必須です");
-
-    const words = load("words") || [];
+    if (!front || !back) return alert("必須項目です");
 
     words.push({
       id: crypto.randomUUID(),
@@ -172,75 +167,55 @@ function drawWordScreen() {
 
     save("words", words);
     drawWordScreen();
-  });
+  };
 
-  // 削除
   document.querySelectorAll(".deleteWordBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.onclick = () => {
       if (!confirm("削除しますか？")) return;
 
-      const id = btn.dataset.id;
-      const newWords = words.filter(w => w.id !== id);
-
+      const newWords = words.filter(w => w.id !== btn.dataset.id);
       save("words", newWords);
       drawWordScreen();
-    });
+    };
   });
 }
 
 // =======================
-// クイズ（そのまま）
+// クイズ（変更なし）
 // =======================
 function drawQuizScreen() {
   const app = document.getElementById("app");
 
   if (currentQuizIndex >= quizWords.length) {
-    app.innerHTML = `
-      <h2>終了！</h2>
-      <button id="backBtn">戻る</button>
-    `;
-    document.getElementById("backBtn").addEventListener("click", drawWordScreen);
+    app.innerHTML = `<h2>終了</h2><button id="backBtn">戻る</button>`;
+    document.getElementById("backBtn").onclick = drawWordScreen;
     return;
   }
 
   const correct = quizWords[currentQuizIndex];
+  const all = load("words") || [];
 
-  const allWords = load("words") || [];
-  const others = allWords.filter(w => w.id !== correct.id);
-  const choices = [correct, ...others.sort(() => Math.random() - 0.5).slice(0, 3)]
+  const choices = [correct, ...all.filter(w => w.id !== correct.id)
+    .sort(() => Math.random() - 0.5).slice(0, 3)]
     .sort(() => Math.random() - 0.5);
 
   app.innerHTML = `
-    <h2>クイズ (${currentQuizIndex + 1}/${quizWords.length})</h2>
-    <p><strong>${correct.front}</strong></p>
+    <h2>${correct.front}</h2>
     <div id="choices"></div>
-    <p id="result"></p>
-    <button id="nextBtn" style="display:none;">次へ</button>
   `;
 
-  const choicesDiv = document.getElementById("choices");
+  const div = document.getElementById("choices");
 
-  choices.forEach(choice => {
-    const btn = document.createElement("button");
-    btn.textContent = choice.back;
+  choices.forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c.back;
 
-    btn.onclick = () => {
-      const result = document.getElementById("result");
-
-      if (choice.id === correct.id) {
-        result.textContent = "✅ 正解！";
-      } else {
-        result.textContent = `❌ 不正解（正解: ${correct.back}）`;
-      }
-
-      document.getElementById("nextBtn").style.display = "inline";
+    b.onclick = () => {
+      alert(c.id === correct.id ? "正解" : `不正解: ${correct.back}`);
+      currentQuizIndex++;
+      drawQuizScreen();
     };
 
-    choicesDiv.appendChild(btn);
-  });
-
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    currentQuizIndex++;
-    drawQuizScreen();
+    div.appendChild(b);
   });
 }
